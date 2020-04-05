@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { combineReducers, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
@@ -470,18 +470,35 @@ function MIDIEditor () {
   const [introTime, setIntroTime] = useState(0)
   const [pitchOffset, setPitchOffset] = useState(0)
   const [youtubeVideoId, setYoutubeVideoId] = useState(null)
+  const [video, setVideo] = useState(null)
   const errorMsg = useRef(null)
 
+  let gNotesOriginal = []
   let gNotes = []
   if (fileBody) {
     try {
-      gNotes = midi2notes(fileBody, trackNo, channelNo)
-      gNotes = makeNotesSensible(gNotes, introTime * 1000000, pitchOffset)
+      gNotesOriginal = midi2notes(fileBody, trackNo, channelNo)
+      gNotes = makeNotesSensible(
+        gNotesOriginal,
+        introTime * 1000000,
+        pitchOffset
+      )
       errorMsg.current = null
     } catch (e) {
       errorMsg.current = e.message
     }
   }
+
+  useEffect(() => {
+    if (gNotesOriginal.length === 0) return
+    const estimatedIntroTime = gNotesOriginal[0].tpos / 1000000
+    setIntroTime(estimatedIntroTime)
+  }, [fileBody, trackNo, channelNo])
+
+  useEffect(() => {
+    if (!video) return
+    video.seekTo(introTime, true)
+  }, [video, introTime])
 
   return (
     <div>
@@ -497,6 +514,7 @@ function MIDIEditor () {
             setIntroTime(0)
             setPitchOffset(0)
             setYoutubeVideoId(null)
+            setVideo(null)
             errorMsg.current = null
 
             // Read the file
@@ -571,6 +589,19 @@ function MIDIEditor () {
         />
       </div>
       <p>{errorMsg.current}</p>
+      {fileBody && youtubeVideoId ? (
+        <YouTube
+          videoId={youtubeVideoId}
+          onReady={e => {
+            const video = e.target
+            setVideo(video)
+            video.playVideo()
+            video.pauseVideo()
+          }}
+        />
+      ) : (
+        <div />
+      )}
       <NotesDisplay curtpos={0} gNotes={gNotes} uNotes={[]} seconds={60} />
     </div>
   )
