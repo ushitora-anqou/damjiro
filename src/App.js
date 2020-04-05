@@ -7,6 +7,8 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { PersistGate } from 'redux-persist/integration/react'
 import ml5 from 'ml5'
+import MIDIFile from 'midifile'
+import MIDIEvents from 'midievents'
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -55,6 +57,90 @@ function lower_bound (ary, cmp) {
   return impl(0, ary.length)
 }
 
+function midi2notes (buffer, targetTrack, targetChannel) {
+  const midi = new MIDIFile(buffer)
+  if (midi.header.getFormat() === 2)
+    throw new Error('Unsupported format of MIDI')
+  if (midi.header.getTracksCount() === 0) throw new Error('Not enough tracks')
+  if (midi.header.getTimeDivision() !== MIDIFile.Header.TICKS_PER_BEAT)
+    throw new Error('Unsupported time division')
+
+  const metrical = midi.header.getTicksPerBeat()
+
+  let tempo = null
+  const notes_begin = []
+  const notes_end = []
+  const events = midi.getTrackEvents(targetTrack)
+  let elapsed_time = 0
+  for (let ev of events) {
+    elapsed_time += ev.delta
+
+    switch (ev.subtype) {
+      case MIDIEvents.EVENT_META_SET_TEMPO:
+        tempo = ev.tempo
+        break
+
+      case MIDIEvents.EVENT_MIDI_NOTE_ON:
+        if (ev.channel !== targetChannel) break
+        notes_begin.push([elapsed_time, ev.param1])
+        break
+
+      case MIDIEvents.EVENT_MIDI_NOTE_OFF:
+        if (ev.channel !== targetChannel) break
+        if (
+          notes_begin.length === 0 ||
+          notes_begin[notes_begin.length - 1][1] !== ev.param1
+        )
+          throw new Error('Invalid note off')
+        notes_end.push([elapsed_time, ev.param1])
+        break
+
+      default:
+        break
+    }
+  }
+  if (!tempo) throw new Error('Tempo Not found')
+  if (notes_begin.length !== notes_end.length)
+    throw new Error('Invalid # of note offs')
+
+  const notes = []
+  for (let i = 0; i < notes_begin.length; i++) {
+    const b = notes_begin[i]
+    const e = notes_end[i]
+    notes.push({
+      tpos: (b[0] * tempo) / metrical,
+      duration: ((e[0] - b[0]) * tempo) / metrical,
+      pitch: b[1]
+    })
+  }
+
+  return notes
+}
+
+function makeNotesSensible (notes, introTime, pitchOffset) {
+  if (notes.length === 0) return notes
+
+  const epoch = notes[0].tpos
+  return notes.map(n => ({
+    tpos: n.tpos - epoch + introTime,
+    duration: n.duration,
+    pitch: n.pitch + pitchOffset
+  }))
+}
+
+function gakufu2json (gNotes, youtubeVideoId, timeOffset) {
+  const gakufu = {
+    notes: gNotes.map(n => [
+      Math.round(n.tpos),
+      Math.round(n.duration),
+      Math.round(n.pitch)
+    ]),
+    youtubeVideoId,
+    timeOffset
+  }
+  return JSON.stringify(gakufu)
+}
+
 async function createPitchDetector () {
   const audioContext = new AudioContext()
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -94,15 +180,12 @@ const NotesSVG = styled.svg`
   width: 80vw;
   height: 80vh;
 `
-function NotesDisplay ({ curtpos, gakufu, user }) {
+function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
-  // 100 units per second
   // pitch in SMF
 
-  if (!gakufu.notes) return <div />
-
   const SIZE_PER_SEC = 100
-  const cw = SIZE_PER_SEC * 30
+  const cw = SIZE_PER_SEC * seconds
   const ch = 500
   const tpos2x = tpos => (tpos * SIZE_PER_SEC) / 1000000
   const r = {
@@ -179,18 +262,15 @@ function NotesDisplay ({ curtpos, gakufu, user }) {
           stroke='red'
         />
         {// note bars
-        notes2bars(gakufu.notes, 'gray')}
+        notes2bars(gNotes, 'gray')}
         {// user's correct note bars
-        notes2bars(user.notes.filter(n => n.correct), '#FFA500')}
+        notes2bars(uNotes.filter(n => n.correct), '#FFA500')}
         {// user's wrong note bars
-        notes2bars(user.notes.filter(n => !n.correct), 'red')}
+        notes2bars(uNotes.filter(n => !n.correct), 'red')}
       </NotesSVG>
     </>
   )
 }
-NotesDisplay = connect(({ user }) => ({
-  user: { notes: user.notes }
-}))(NotesDisplay)
 
 function InputDamjiroGakufu ({ dispatch }) {
   const [gakufuText, setGakufuText] = useState('')
@@ -273,7 +353,11 @@ PitchOffsetForm = connect(({ user: { pitchOffset } }) => ({ pitchOffset }))(
   PitchOffsetForm
 )
 
-function NotesScroller ({ dispatch, gakufu, timeOffset, pitchOffset }) {
+function NotesScroller ({
+  dispatch,
+  gakufu,
+  user: { notes: uNotes, timeOffset, pitchOffset }
+}) {
   const playing = useRef(false)
   const curTimeOffset = useRef(timeOffset)
   const curPitchOffset = useRef(pitchOffset)
@@ -339,14 +423,20 @@ function NotesScroller ({ dispatch, gakufu, timeOffset, pitchOffset }) {
         onEnd={() => (playing.current = false)}
       />
 
-      <NotesDisplay curtpos={curtpos} gakufu={gakufu} />
+      {gakufu.notes && (
+        <NotesDisplay
+          curtpos={curtpos}
+          gNotes={gakufu.notes}
+          uNotes={uNotes}
+          seconds={30}
+        />
+      )}
     </>
   )
 }
-NotesScroller = connect(({ gakufu, user: { timeOffset, pitchOffset } }) => ({
+NotesScroller = connect(({ gakufu, user }) => ({
   gakufu,
-  timeOffset,
-  pitchOffset
+  user
 }))(NotesScroller)
 
 function ScoreDisplay ({ gNotes, uNotes }) {
@@ -372,6 +462,119 @@ ScoreDisplay = connect(
     uNotes
   })
 )(ScoreDisplay)
+
+function MIDIEditor () {
+  const [fileBody, setFileBody] = useState(null)
+  const [trackNo, setTrackNo] = useState(0)
+  const [channelNo, setChannelNo] = useState(0)
+  const [introTime, setIntroTime] = useState(0)
+  const [pitchOffset, setPitchOffset] = useState(0)
+  const [youtubeVideoId, setYoutubeVideoId] = useState(null)
+  const errorMsg = useRef(null)
+
+  let gNotes = []
+  if (fileBody) {
+    try {
+      gNotes = midi2notes(fileBody, trackNo, channelNo)
+      gNotes = makeNotesSensible(gNotes, introTime * 1000000, pitchOffset)
+      errorMsg.current = null
+    } catch (e) {
+      errorMsg.current = e.message
+    }
+  }
+
+  return (
+    <div>
+      <div>
+        <input
+          type='file'
+          accept='audio/midi, audio/x-midi'
+          onChange={e => {
+            // Reset
+            setFileBody(null)
+            setTrackNo(0)
+            setChannelNo(0)
+            setIntroTime(0)
+            setPitchOffset(0)
+            setYoutubeVideoId(null)
+            errorMsg.current = null
+
+            // Read the file
+            try {
+              const file = e.target.files[0]
+              if (file.type !== 'audio/midi' && file.type !== 'audio/x-midi')
+                throw 'invalid mime type'
+              const reader = new FileReader()
+              reader.onload = e => setFileBody(e.target.result)
+              reader.readAsArrayBuffer(file)
+            } catch (e) {
+              console.log(e)
+            }
+          }}
+        />
+      </div>
+      <div>
+        <label>
+          Track No.:
+          <input
+            type='number'
+            onChange={e => setTrackNo(Number(e.target.value))}
+            value={trackNo}
+          />
+        </label>
+        <label>
+          Channel No.:
+          <input
+            type='number'
+            onChange={e => setChannelNo(Number(e.target.value))}
+            value={channelNo}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          intro time (sec):
+          <input
+            type='number'
+            step='any'
+            onChange={e => setIntroTime(Number(e.target.value))}
+            value={introTime}
+          />
+        </label>
+        <label>
+          pitch offset (SMF note #):
+          <input
+            type='number'
+            onChange={e => setPitchOffset(Number(e.target.value))}
+            value={pitchOffset}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          YouTube video id:
+          <input
+            type='text'
+            onChange={e => setYoutubeVideoId(e.target.value)}
+            value={youtubeVideoId || ''}
+          />
+        </label>
+      </div>
+      <div>
+        <textarea
+          value={
+            fileBody && youtubeVideoId
+              ? gakufu2json(gNotes, youtubeVideoId, 300 * 1000)
+              : ''
+          }
+          readOnly
+        />
+      </div>
+      <p>{errorMsg.current}</p>
+      <NotesDisplay curtpos={0} gNotes={gNotes} uNotes={[]} seconds={60} />
+    </div>
+  )
+}
 
 function gakufuReducer (state = { notes: null, videoId: null }, action) {
   switch (action.type) {
@@ -455,6 +658,8 @@ function App () {
         <PitchOffsetForm />
         <ScoreDisplay />
         <NotesScroller />
+        <hr />
+        <MIDIEditor />
       </PersistGate>
     </Provider>
   )
