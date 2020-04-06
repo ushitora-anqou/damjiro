@@ -41,5 +41,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://ushitora-anqou.github.io/damjiro/"
+  "homepage": "https://ushitora-anqou.github.io/damjiro/",
+  "devDependencies": {
+    "prettier-standard": "^16.2.1"
+  }
 }
