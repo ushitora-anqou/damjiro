@@ -2,6 +2,15 @@
 
 Yet another _karaoke_ system w/ scoring.
 
+## How to play
+
+Need `git`, `yarn` and `serve`
+
+- `git clone`
+- `yarn build`
+- `serve -s build`
+- Go to [http://localhost:5000](http://localhost:5000)
+
 ## How to build
 
 `yarn build`
