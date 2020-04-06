@@ -11,7 +11,7 @@ Yet another _karaoke_ system w/ scoring.
 - Go to [https://ushitora-anqou.github.io/damjiro/](https://ushitora-anqou.github.io/damjiro/).
 - Click "open" at the middle of the page and select your MIDI file.
 - Change "Track No." and "Channel No." to select melody.
-- Set "YouTube video id", which is the last part (XXXXX of `youtube.com/watch?v=XXXXX`) of the url of your YouTube video.
+- Set "YouTube video id", which is the last part of the url of your YouTube video (XXXXX of `youtube.com/watch?v=XXXXX`).
 - Set "intro time (sec)", which is the number of seconds of the song's introduction.
 - Set "pitch offset (SMF note#)" if the key is too high or low.
 - JSON text will be shown in the textarea. Copy it to another textarea above.
