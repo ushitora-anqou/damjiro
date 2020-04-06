@@ -10,6 +10,27 @@ import ml5 from 'ml5'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 
+// material ui
+import Container from "@material-ui/core/Container"
+import Input from "@material-ui/core/Input"
+import FormControl from "@material-ui/core/FormControl"
+import InputLabel from "@material-ui/core/InputLabel"
+import Card from "@material-ui/core/Card"
+import Typography from "@material-ui/core/Typography"
+import CardContent from "@material-ui/core/CardContent"
+import {TextField} from "@material-ui/core"
+import CardActions from "@material-ui/core/CardActions"
+import Collapse from "@material-ui/core/Collapse"
+import {makeStyles} from "@material-ui/core/styles"
+import red from "@material-ui/core/colors/red"
+import IconButton from "@material-ui/core/IconButton"
+import clsx from "clsx"
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import Divider from "@material-ui/core/Divider"
+import InputAdornment from "@material-ui/core/InputAdornment"
+import CssBaseline from "@material-ui/core/CssBaseline"
+import Box from "@material-ui/core/Box"
+
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
   return typeof s === 'string' || s instanceof String
@@ -277,9 +298,12 @@ function InputDamjiroGakufu ({ dispatch }) {
   const [errorMsg, setErrorMsg] = useState(null)
 
   return (
-    <div>
-      <textarea
+    <FormControl fullWidth>
+      <TextField
         value={gakufuText}
+        label='Enter Damjiro gakuhu.'
+        helperText={errorMsg}
+        error={errorMsg}
         onChange={e => {
           setGakufuText(e.target.value)
           try {
@@ -303,16 +327,16 @@ function InputDamjiroGakufu ({ dispatch }) {
           dispatch({ type: 'RESET_USER_NOTES' })
         }}
       />
-      {errorMsg}
-    </div>
+    </FormControl>
   )
 }
 InputDamjiroGakufu = connect()(InputDamjiroGakufu)
 
 function TimeOffsetForm ({ timeOffset, dispatch }) {
   return (
-    <div>
-      <input
+    <FormControl>
+      <InputLabel>Offset</InputLabel>
+      <Input
         type='number'
         value={Math.floor(timeOffset / 1000)}
         onChange={e =>
@@ -322,9 +346,9 @@ function TimeOffsetForm ({ timeOffset, dispatch }) {
           })
         }
         required
+        endAdornment={<InputAdornment position='end'>ms</InputAdornment>}
       />
-      ms
-    </div>
+    </FormControl>
   )
 }
 TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
@@ -333,8 +357,9 @@ TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
 
 function PitchOffsetForm ({ pitchOffset, dispatch }) {
   return (
-    <div>
-      <input
+    <FormControl>
+      <InputLabel>Pitch Offset</InputLabel>
+      <Input
         type='number'
         value={Math.floor(pitchOffset)}
         onChange={e =>
@@ -344,9 +369,9 @@ function PitchOffsetForm ({ pitchOffset, dispatch }) {
           })
         }
         required
+        endAdornment={<InputAdornment position='end'>note#</InputAdornment>}
       />
-      note#
-    </div>
+    </FormControl>
   )
 }
 PitchOffsetForm = connect(({ user: { pitchOffset } }) => ({ pitchOffset }))(
@@ -454,7 +479,13 @@ function ScoreDisplay ({ gNotes, uNotes }) {
   const scale = 1.2
   const score = (percPitchCorrect * 100 + geta) * scale
 
-  return <div>Score: {Math.round(score * 100) / 100}</div>
+  return (
+    <div>
+      <Typography variant='h6'>
+        Score: {Math.round(score * 100) / 100}
+      </Typography>
+    </div>
+  )
 }
 ScoreDisplay = connect(
   ({ gakufu: { notes: gNotes }, user: { notes: uNotes } }) => ({
@@ -607,6 +638,76 @@ function MIDIEditor () {
   )
 }
 
+const useCardStyles = makeStyles((theme) => ({
+  expand: {
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
+  },
+}))
+
+const useMarginStyles = makeStyles((theme) => ({
+  m1: {
+    margin: theme.spacing(1)
+  }
+}))
+
+function SingFromGakuhuCard() {
+  const classes = useCardStyles()
+  const marginClasses = useMarginStyles()
+  const [expanded, setExpanded] = React.useState(false)
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded)
+  }
+
+
+  return (
+    <Card className={marginClasses.m1}>
+      <CardContent>
+        <Typography variant='h5'>
+          Sing to use Damjiro gakuhu.
+        </Typography>
+        <InputDamjiroGakufu />
+        <ScoreDisplay />
+        <NotesScroller />
+      </CardContent>
+      <CardActions disableSpacing>
+        <Typography color='textSecondary'>
+            Adjustment
+        </Typography>
+        <IconButton
+            className={clsx(classes.expand, {
+              [classes.expandOpen]: expanded,
+            })}
+            onClick={handleExpandClick}
+            aria-expanded={expanded}
+            aria-label="show more"
+        >
+          <ExpandMoreIcon />
+        </IconButton>
+      </CardActions>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent disableSpacing>
+          <Box display='flex' flexDirection='column'>
+            <Box alignSelf='start'>
+              <TimeOffsetForm/>
+            </Box>
+            <Box alignSelf='start'>
+              <PitchOffsetForm/>
+            </Box>
+          </Box>
+        </CardContent>
+      </Collapse>
+    </Card>
+  )
+}
+
 function gakufuReducer (state = { notes: null, videoId: null }, action) {
   switch (action.type) {
     case 'SET_GAKUFU':
@@ -681,16 +782,26 @@ const store = createStore(persistedReducer)
 const persistor = persistStore(store)
 
 function App () {
+  const marginStyles = useMarginStyles()
+  // todo separate making gakuhu card component
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <InputDamjiroGakufu />
-        <TimeOffsetForm />
-        <PitchOffsetForm />
-        <ScoreDisplay />
-        <NotesScroller />
-        <hr />
-        <MIDIEditor />
+        <CssBaseline />
+        <Container maxWidth={false}>
+          <Typography variant='h4' className={marginStyles.m1}>
+            Damjiro
+          </Typography>
+          <SingFromGakuhuCard/>
+          <Card className={marginStyles.m1}>
+            <CardContent>
+              <Typography variant='h5'>
+                Make Damjiro Gakuhu.
+              </Typography>
+              <MIDIEditor />
+            </CardContent>
+          </Card>
+        </Container>
       </PersistGate>
     </Provider>
   )
