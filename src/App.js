@@ -551,6 +551,16 @@ function MIDIEditor () {
       </div>
       <div>
         <label>
+          YouTube video id:
+          <input
+            type='text'
+            onChange={e => setYoutubeVideoId(e.target.value)}
+            value={youtubeVideoId || ''}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
           intro time (sec):
           <input
             type='number'
@@ -565,16 +575,6 @@ function MIDIEditor () {
             type='number'
             onChange={e => setPitchOffset(Number(e.target.value))}
             value={pitchOffset}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          YouTube video id:
-          <input
-            type='text'
-            onChange={e => setYoutubeVideoId(e.target.value)}
-            value={youtubeVideoId || ''}
           />
         </label>
       </div>
