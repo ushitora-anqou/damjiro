@@ -17,6 +17,11 @@ Yet another _karaoke_ system w/ scoring.
 - JSON text will be shown in the textarea. Copy it to another textarea above.
 - Play the video and sing it.
 
+## Development
+- install yarn@1.22.4
+- Run `yarn install`
+- Run `yarn start`
+
 ## License
 
 - `public/models/*` are not my work, but [ML5.js's](https://ml5js.org/)
