@@ -1,17 +1,14 @@
 # Damjiro
 
+[![Build Status](https://travis-ci.org/ushitora-anqou/damjiro.svg?branch=master)](https://travis-ci.org/ushitora-anqou/damjiro)
+
 Yet another _karaoke_ system w/ scoring.
 
 ## How to play
 
-Need `git`, `yarn` and `serve`
-
 - Decide a song you want to sing.
 - Get its MIDI file including melody and find its karaoke-like YouTube video somehow.
-- `git clone`
-- `yarn build`
-- `serve -s build`
-- Go to [http://localhost:5000](http://localhost:5000).
+- Go to [https://ushitora-anqou.github.io/damjiro/](https://ushitora-anqou.github.io/damjiro/).
 - Click "open" at the middle of the page and select your MIDI file.
 - Change "Track No." and "Channel No." to select melody.
 - Set "YouTube video id", which is the last part (XXXXX of `youtube.com/watch?v=XXXXX`) of the url of your YouTube video.
