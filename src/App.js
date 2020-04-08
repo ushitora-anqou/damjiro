@@ -264,9 +264,15 @@ function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
         {// note bars
         notes2bars(gNotes, 'gray')}
         {// user's correct note bars
-        notes2bars(uNotes.filter(n => n.correct), '#FFA500')}
+        notes2bars(
+          uNotes.filter(n => n.correct),
+          '#FFA500'
+        )}
         {// user's wrong note bars
-        notes2bars(uNotes.filter(n => !n.correct), 'red')}
+        notes2bars(
+          uNotes.filter(n => !n.correct),
+          'red'
+        )}
       </NotesSVG>
     </>
   )
