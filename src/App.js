@@ -387,19 +387,27 @@ function NotesScroller ({
       const pitch = await getPitch()
       const now = getBiasedVideoTime()
       if (pitch) {
-        //const biasedPitch = pitch + curPitchOffset.current
         const duration = now - prev
-        const lb =
-          gakufu.notes[lower_bound(gakufu.notes, n => n.tpos < prev) - 1]
-        const lb_biasedPitch = lb ? lb.pitch + curPitchOffset.current : 0
-        let gap = (pitch - lb_biasedPitch) - Math.floor((pitch - lb_biasedPitch) / 12) * 12
-        if (gap > 6) gap -= 12
+        let biasedPitch = pitch
+        let correct = false
+
+        const lbIdx = lower_bound(gakufu.notes, n => n.tpos < prev) - 1
+        const lb = lbIdx >= 0 ? gakufu.notes[lbIdx] : gakufu.notes[0]
+        if (lb) {
+          biasedPitch = lb.pitch + curPitchOffset.current
+          let gap =
+            pitch - biasedPitch - Math.floor((pitch - biasedPitch) / 12) * 12
+          if (gap > 6) gap -= 12
+          biasedPitch += gap
+          if (lb.tpos < prev && prev < lb.tpos + lb.duration && gap == 0)
+            correct = true
+        }
+
         const note = {
           tpos: prev,
           duration,
-          pitch: lb ? lb_biasedPitch + gap : pitch,
-          correct:
-            lb && prev < lb.tpos + lb.duration && gap==0
+          pitch: biasedPitch,
+          correct
         }
         dispatch({ type: 'APPEND_USER_NOTE', note })
       }
