@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/damjiro/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/damjiro/static/js/main.a974dbe1.chunk.js",
-    "main.js.map": "/damjiro/static/js/main.a974dbe1.chunk.js.map",
-    "runtime-main.js": "/damjiro/static/js/runtime-main.80f73bfa.js",
-    "runtime-main.js.map": "/damjiro/static/js/runtime-main.80f73bfa.js.map",
-    "static/js/2.4bcc1ac5.chunk.js": "/damjiro/static/js/2.4bcc1ac5.chunk.js",
-    "static/js/2.4bcc1ac5.chunk.js.map": "/damjiro/static/js/2.4bcc1ac5.chunk.js.map",
-    "index.html": "/damjiro/index.html",
-    "precache-manifest.492890d558f63e7a9a3dadafe139b77b.js": "/damjiro/precache-manifest.492890d558f63e7a9a3dadafe139b77b.js",
-    "service-worker.js": "/damjiro/service-worker.js",
-    "static/css/main.5ecd60fb.chunk.css.map": "/damjiro/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.4bcc1ac5.chunk.js.LICENSE.txt": "/damjiro/static/js/2.4bcc1ac5.chunk.js.LICENSE.txt"
+    "main.css": "https://ushitora-anqou.github.io/damjiro/static/css/main.5ecd60fb.chunk.css",
+    "main.js": "https://ushitora-anqou.github.io/damjiro/static/js/main.cbb943f5.chunk.js",
+    "main.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/main.cbb943f5.chunk.js.map",
+    "runtime-main.js": "https://ushitora-anqou.github.io/damjiro/static/js/runtime-main.8e2f1e3c.js",
+    "runtime-main.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/runtime-main.8e2f1e3c.js.map",
+    "static/js/2.f884a0bf.chunk.js": "https://ushitora-anqou.github.io/damjiro/static/js/2.f884a0bf.chunk.js",
+    "static/js/2.f884a0bf.chunk.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/2.f884a0bf.chunk.js.map",
+    "index.html": "https://ushitora-anqou.github.io/damjiro/index.html",
+    "precache-manifest.65a129080330457108b73a24c7d9bebe.js": "https://ushitora-anqou.github.io/damjiro/precache-manifest.65a129080330457108b73a24c7d9bebe.js",
+    "service-worker.js": "https://ushitora-anqou.github.io/damjiro/service-worker.js",
+    "static/css/main.5ecd60fb.chunk.css.map": "https://ushitora-anqou.github.io/damjiro/static/css/main.5ecd60fb.chunk.css.map",
+    "static/js/2.f884a0bf.chunk.js.LICENSE.txt": "https://ushitora-anqou.github.io/damjiro/static/js/2.f884a0bf.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.80f73bfa.js",
-    "static/js/2.4bcc1ac5.chunk.js",
+    "static/js/runtime-main.8e2f1e3c.js",
+    "static/js/2.f884a0bf.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.a974dbe1.chunk.js"
+    "static/js/main.cbb943f5.chunk.js"
   ]
 }
