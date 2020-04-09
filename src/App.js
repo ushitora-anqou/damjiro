@@ -9,6 +9,8 @@ import { PersistGate } from 'redux-persist/integration/react'
 import ml5 from 'ml5'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
+import MIDIPlayer from './MIDIPlayer'
+import MIDIFilePicker from './MIDIFilePicker'
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -428,17 +430,26 @@ function NotesScroller ({
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
 
-  if (!gakufu.notes) return <div />
-
   return (
     <>
-      <YouTube
-        videoId={gakufu.videoId}
-        onReady={e => (video.current = e.target)}
-        onPlay={onPlay}
-        onPause={() => (playing.current = false)}
-        onEnd={() => (playing.current = false)}
-      />
+      {gakufu.midiBuf && (
+        <MIDIPlayer
+          buffer={gakufu.midiBuf}
+          onReady={e => (video.current = e.target)}
+          onPlay={onPlay}
+          onEnd={() => (playing.current = false)}
+        />
+      )}
+
+      {gakufu.videoId && (
+        <YouTube
+          videoId={gakufu.videoId}
+          onReady={e => (video.current = e.target)}
+          onPlay={onPlay}
+          onPause={() => (playing.current = false)}
+          onEnd={() => (playing.current = false)}
+        />
+      )}
 
       {gakufu.notes && (
         <NotesDisplay
@@ -624,7 +635,10 @@ function MIDIEditor () {
   )
 }
 
-function gakufuReducer (state = { notes: null, videoId: null }, action) {
+function gakufuReducer (
+  state = { notes: null, videoId: null, midiBuf: null },
+  action
+) {
   switch (action.type) {
     case 'SET_GAKUFU':
       return action.gakufu
@@ -702,6 +716,18 @@ function App () {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <InputDamjiroGakufu />
+        <MIDIFilePicker
+          onLoad={buf => {
+            store.dispatch({
+              type: 'SET_GAKUFU',
+              gakufu: {
+                notes: midi2notes(buf, 0, 0),
+                midiBuf: buf,
+                videoId: null
+              }
+            })
+          }}
+        />
         <TimeOffsetForm />
         <PitchOffsetForm />
         <ScoreDisplay />
