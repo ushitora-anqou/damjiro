@@ -67,41 +67,30 @@ function midi2notes (buffer, targetTrack, targetChannel) {
   if (midi.header.getTimeDivision() !== MIDIFile.Header.TICKS_PER_BEAT)
     throw new Error('Unsupported time division')
 
-  const metrical = midi.header.getTicksPerBeat()
-
-  let tempo = null
   const notes_begin = []
   const notes_end = []
-  const events = midi.getTrackEvents(targetTrack)
-  let elapsed_time = 0
+  const events = midi.getMidiEvents()
   for (let ev of events) {
-    elapsed_time += ev.delta
+    if (ev.channel !== targetChannel) continue
 
     switch (ev.subtype) {
-      case MIDIEvents.EVENT_META_SET_TEMPO:
-        tempo = ev.tempo
-        break
-
       case MIDIEvents.EVENT_MIDI_NOTE_ON:
-        if (ev.channel !== targetChannel) break
-        notes_begin.push([elapsed_time, ev.param1])
+        notes_begin.push([ev.playTime * 1000, ev.param1])
         break
 
       case MIDIEvents.EVENT_MIDI_NOTE_OFF:
-        if (ev.channel !== targetChannel) break
         if (
           notes_begin.length === 0 ||
           notes_begin[notes_begin.length - 1][1] !== ev.param1
         )
           throw new Error('Invalid note off')
-        notes_end.push([elapsed_time, ev.param1])
+        notes_end.push([ev.playTime * 1000, ev.param1])
         break
 
       default:
         break
     }
   }
-  if (!tempo) throw new Error('Tempo Not found')
   if (notes_begin.length !== notes_end.length)
     throw new Error('Invalid # of note offs')
 
@@ -110,8 +99,8 @@ function midi2notes (buffer, targetTrack, targetChannel) {
     const b = notes_begin[i]
     const e = notes_end[i]
     notes.push({
-      tpos: (b[0] * tempo) / metrical,
-      duration: ((e[0] - b[0]) * tempo) / metrical,
+      tpos: b[0],
+      duration: e[0] - b[0],
       pitch: b[1]
     })
   }
