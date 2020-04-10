@@ -75,15 +75,16 @@ function midi2notes (buffer, targetTrack, targetChannel) {
 
     switch (ev.subtype) {
       case MIDIEvents.EVENT_MIDI_NOTE_ON:
+        if (notes_begin.length !== notes_end.length) break
         notes_begin.push([ev.playTime * 1000, ev.param1])
         break
 
       case MIDIEvents.EVENT_MIDI_NOTE_OFF:
         if (
-          notes_begin.length === 0 ||
+          notes_begin.length - notes_end.length !== 1 ||
           notes_begin[notes_begin.length - 1][1] !== ev.param1
         )
-          throw new Error('Invalid note off')
+          break
         notes_end.push([ev.playTime * 1000, ev.param1])
         break
 
