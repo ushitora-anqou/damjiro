@@ -396,7 +396,7 @@ function NotesScroller ({
             pitch - biasedPitch - Math.floor((pitch - biasedPitch) / 12) * 12
           if (gap > 6) gap -= 12
           biasedPitch += gap
-          if (lb.tpos < prev && prev < lb.tpos + lb.duration && gap == 0)
+          if (lb.tpos < prev && prev < lb.tpos + lb.duration && gap === 0)
             correct = true
         }
 
