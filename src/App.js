@@ -538,7 +538,7 @@ function MIDIEditor () {
             try {
               const file = e.target.files[0]
               if (file.type !== 'audio/midi' && file.type !== 'audio/x-midi')
-                throw 'invalid mime type'
+                throw new Error('invalid mime type')
               const reader = new FileReader()
               reader.onload = e => setFileBody(e.target.result)
               reader.readAsArrayBuffer(file)
