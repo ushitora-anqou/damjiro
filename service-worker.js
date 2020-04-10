@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://ushitora-anqou.github.io/damjiro/precache-manifest.eae3d41d39321735ff863788ca21f89a.js"
+  "https://ushitora-anqou.github.io/damjiro/precache-manifest.85ae4d64a6c4ab1a963b17618c920e8c.js"
 );
 
 self.addEventListener('message', (event) => {
