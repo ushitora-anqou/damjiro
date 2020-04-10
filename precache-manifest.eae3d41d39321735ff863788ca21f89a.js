@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "22e83032f501daab416ddadbc9873904",
+    "revision": "ceb183737d0a53a37b53cba87e483f85",
     "url": "https://ushitora-anqou.github.io/damjiro/index.html"
   },
   {
-    "revision": "d9158724989606a76924",
+    "revision": "41bb7da76a3fdfd32472",
     "url": "https://ushitora-anqou.github.io/damjiro/static/css/main.5ecd60fb.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://ushitora-anqou.github.io/damjiro/static/js/2.19619c07.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "d9158724989606a76924",
-    "url": "https://ushitora-anqou.github.io/damjiro/static/js/main.9921d2d2.chunk.js"
+    "revision": "41bb7da76a3fdfd32472",
+    "url": "https://ushitora-anqou.github.io/damjiro/static/js/main.852060fa.chunk.js"
   },
   {
     "revision": "95b6dd0b62d7757eeaa8",
