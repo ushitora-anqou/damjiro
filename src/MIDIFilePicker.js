@@ -4,12 +4,12 @@ function MIDIFilePicker ({ onLoad }) {
   return (
     <input
       type='file'
-      accept='audio/midi, audio/x-midi'
+      accept='audio/midi, audio/x-midi, audio/mid'
       onChange={e => {
         // Read the file
         try {
           const file = e.target.files[0]
-          if (file.type !== 'audio/midi' && file.type !== 'audio/x-midi')
+          if (!['audio/midi', 'audio/x-midi', 'audio/mid'].includes(file.type))
             throw new Error('invalid mime type')
           const reader = new FileReader()
           reader.onload = e => onLoad(e.target.result)
