@@ -6946,7 +6946,7 @@ js-base64@^2.1.9:
 
 "js-libtimidity@https://github.com/ushitora-anqou/js-libtimidity.git":
   version "1.0.0"
-  resolved "https://github.com/ushitora-anqou/js-libtimidity.git#459522889ec09d970181555201709fee91ea9bd4"
+  resolved "https://github.com/ushitora-anqou/js-libtimidity.git#fe476df27c35d70eb6dcbb86f8223880f7f4bf43"
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
