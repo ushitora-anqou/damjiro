@@ -11,11 +11,9 @@ soundfont GeneralUserGSv1.471.sf2
 function getFirstEffectiveMIDIEvent (midiBuf) {
   const midi = new MIDIFile(midiBuf)
   const events = midi.getMidiEvents()
-  for (let ev of events) {
-    if (ev.subtype !== MIDIEvents.EVENT_MIDI_NOTE_ON) continue
-    return ev
-  }
-  return null
+  const ons = events.filter(ev => ev.subtype === MIDIEvents.EVENT_MIDI_NOTE_ON)
+  if (ons.length === 0) throw new Error('invalid midi file')
+  return ons[0]
 }
 
 class PCMPlayer extends EventEmitter {
