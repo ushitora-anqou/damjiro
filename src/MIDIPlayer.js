@@ -100,7 +100,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
   useEffect(() => {
     if (!audioContext || !buffer) return
     async function f () {
-      const synth = new JSLibTimidity('/', TIMIDITY_CFG, {
+      const synth = new JSLibTimidity(window.location.pathname, TIMIDITY_CFG, {
         sampleRate: audioContext.sampleRate,
         numChannels: 2
       })
