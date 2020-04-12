@@ -399,7 +399,7 @@ function NotesScroller ({
     while (playing.current) {
       const pitch = await getPitch()
       const now = getBiasedVideoTime()
-      if (pitch) {
+      if (pitch && pitch >= 36 && pitch <= 88) {
         const duration = now - prev
         let biasedPitch = pitch
         let correct = false
@@ -483,11 +483,25 @@ function ScoreDisplay ({ gNotes, uNotes }) {
       const secretNonLinearFunc = x => x / (1 + Math.abs(x))
       return acc + uNote.duration * (1 - secretNonLinearFunc(loss))
     }, 0) / gNotes.reduce((sum, gNote) => sum + gNote.duration, 0)
+  const percPitchAccuracy =
+    uNotes.reduce((acc, uNote) => {
+      const gNote = gNotes[lower_bound(gNotes, n => n.tpos < uNote.tpos) - 1]
+      if (!gNote || gNote.tpos + gNote.duration < uNote.tpos) return acc
+      const loss = Math.abs(uNote.pitch - gNote.pitch)
+      return uNote.pitch === gNote.pitch ? acc + uNote.duration : acc
+    }, 0) / uNotes.reduce((sum, uNote) => sum + uNote.duration, 0)
   const geta = 0
   const scale = 1.2
   const score = (percPitchCorrect * 100 + geta) * scale
 
-  return <div>Score: {Math.round(score * 100) / 100}</div>
+  const accuracy = percPitchAccuracy * 100
+
+  return (
+    <div>
+      Score: {Math.round(score * 100) / 100} Accuracy:{' '}
+      {Math.round(accuracy * 100) / 100}
+    </div>
+  )
 }
 ScoreDisplay = connect(
   ({ gakufu: { notes: gNotes }, user: { notes: uNotes } }) => ({
