@@ -11,6 +11,8 @@ import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
+import snackbarReducer from "./reducers/SnackbarReducer";
+import MessageSnackbar from "./shared/MessageSnackbar";
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -688,8 +690,10 @@ const rootReducer = combineReducers({
       whitelist: ['pitchOffset']
     },
     userReducer
-  )
+  ),
+  snack: snackbarReducer
 })
+
 const persistedReducer = persistReducer(
   {
     key: 'root',
@@ -698,6 +702,7 @@ const persistedReducer = persistReducer(
   },
   rootReducer
 )
+
 const store = createStore(persistedReducer)
 const persistor = persistStore(store)
 
@@ -724,6 +729,7 @@ function App () {
         <NotesScroller />
         <hr />
         <MIDIEditor />
+        <MessageSnackbar />
       </PersistGate>
     </Provider>
   )
