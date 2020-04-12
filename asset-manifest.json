@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "https://ushitora-anqou.github.io/damjiro/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "https://ushitora-anqou.github.io/damjiro/static/js/main.79c2bda0.chunk.js",
-    "main.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/main.79c2bda0.chunk.js.map",
+    "main.js": "https://ushitora-anqou.github.io/damjiro/static/js/main.20cc3412.chunk.js",
+    "main.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/main.20cc3412.chunk.js.map",
     "runtime-main.js": "https://ushitora-anqou.github.io/damjiro/static/js/runtime-main.8e2f1e3c.js",
     "runtime-main.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/runtime-main.8e2f1e3c.js.map",
-    "static/js/2.19619c07.chunk.js": "https://ushitora-anqou.github.io/damjiro/static/js/2.19619c07.chunk.js",
-    "static/js/2.19619c07.chunk.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/2.19619c07.chunk.js.map",
+    "static/js/2.bf14463a.chunk.js": "https://ushitora-anqou.github.io/damjiro/static/js/2.bf14463a.chunk.js",
+    "static/js/2.bf14463a.chunk.js.map": "https://ushitora-anqou.github.io/damjiro/static/js/2.bf14463a.chunk.js.map",
     "index.html": "https://ushitora-anqou.github.io/damjiro/index.html",
-    "precache-manifest.c22ddea7c646836a22eff754b16396cb.js": "https://ushitora-anqou.github.io/damjiro/precache-manifest.c22ddea7c646836a22eff754b16396cb.js",
+    "precache-manifest.6dd243033015c96033c7003678745188.js": "https://ushitora-anqou.github.io/damjiro/precache-manifest.6dd243033015c96033c7003678745188.js",
     "service-worker.js": "https://ushitora-anqou.github.io/damjiro/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "https://ushitora-anqou.github.io/damjiro/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.19619c07.chunk.js.LICENSE.txt": "https://ushitora-anqou.github.io/damjiro/static/js/2.19619c07.chunk.js.LICENSE.txt"
+    "static/js/2.bf14463a.chunk.js.LICENSE.txt": "https://ushitora-anqou.github.io/damjiro/static/js/2.bf14463a.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.8e2f1e3c.js",
-    "static/js/2.19619c07.chunk.js",
+    "static/js/2.bf14463a.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.79c2bda0.chunk.js"
+    "static/js/main.20cc3412.chunk.js"
   ]
 }
