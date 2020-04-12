@@ -1,6 +1,6 @@
 import React from 'react'
-import {connect} from "react-redux";
-import MIDILoader from "./util/MIDILoader";
+import { connect } from 'react-redux'
+import MIDILoader from './util/MIDILoader'
 
 function MIDIFilePicker ({ onLoad, dispatch }) {
   return (

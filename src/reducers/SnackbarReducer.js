@@ -20,7 +20,7 @@ export default function snackbarReducer (
       console.log('unloaded', action)
       return {
         ...state,
-        openSnack: false,
+        openSnack: false
       }
 
     default:

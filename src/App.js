@@ -11,10 +11,10 @@ import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
-import snackbarReducer from "./reducers/SnackbarReducer";
-import MessageSnackbar from "./shared/MessageSnackbar";
-import MIDILoader from "./util/MIDILoader";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import snackbarReducer from './reducers/SnackbarReducer'
+import MessageSnackbar from './shared/MessageSnackbar'
+import MIDILoader from './util/MIDILoader'
+import CssBaseline from '@material-ui/core/CssBaseline'
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -294,7 +294,11 @@ function InputDamjiroGakufu ({ dispatch }) {
             const videoId = json.youtubeVideoId
             const timeOffset = json.timeOffset
             if (!isString(videoId) || !isNumber(timeOffset))
-              dispatch({type: 'SNACK_LOAD', message: 'invalid JSON', variant: 'error'})
+              dispatch({
+                type: 'SNACK_LOAD',
+                message: 'invalid JSON',
+                variant: 'error'
+              })
             dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
             dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
             setErrorMsg(null)
@@ -485,7 +489,7 @@ ScoreDisplay = connect(
   })
 )(ScoreDisplay)
 
-function MIDIEditor ({dispatch}) {
+function MIDIEditor ({ dispatch }) {
   const [fileBody, setFileBody] = useState(null)
   const [trackNo, setTrackNo] = useState(0)
   const [channelNo, setChannelNo] = useState(0)
@@ -541,7 +545,7 @@ function MIDIEditor ({dispatch}) {
 
             // Read the file
             const file = e.target.files[0]
-            MIDILoader(file, setFileBody)
+            MIDILoader(file, setFileBody, dispatch)
           }}
         />
       </div>
