@@ -26,9 +26,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "check": "prettier-standard src/** --check",
-    "fmt": "prettier-standard src/**",
-    "lint": "prettier-standard src/** --lint"
+    "check": "prettier-standard src/* src/**/* --check",
+    "fmt": "prettier-standard  src/* src/**/*",
+    "lint": "prettier-standard src/* src/**/* --lint"
   },
   "eslintConfig": {
     "extends": "react-app"
