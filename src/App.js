@@ -293,13 +293,13 @@ function InputDamjiroGakufu ({ dispatch }) {
             }))
             const videoId = json.youtubeVideoId
             const timeOffset = json.timeOffset
-            if (!isString(videoId) || !isNumber(timeOffset))
+            if (!isString(videoId) || !isNumber(timeOffset)) {
               dispatch({
                 type: 'SNACK_LOAD',
                 message: 'invalid JSON',
                 variant: 'error'
               })
-            else {
+            } else {
               dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
               dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
               setErrorMsg(null)
