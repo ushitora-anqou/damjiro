@@ -1,7 +1,9 @@
-import {Snackbar} from "@material-ui/core";
-import SnackbarContentWrapper from "./SnackbarContentWrapper";
+import {IconButton, makeStyles, Snackbar, SnackbarContent} from "@material-ui/core";
 import React from "react";
 import {connect} from "react-redux";
+import {CheckCircle, Close, Error, Info, Warning} from "@material-ui/icons";
+import {amber, green} from "@material-ui/core/colors";
+import clsx from "clsx";
 
 /**
  * Show snackbar with custom message from Redux.
@@ -28,6 +30,40 @@ import {connect} from "react-redux";
  *  you can customize Snackbar from material UI. add some tag implemented Snackbar.
  * @returns <Snackbar />
  */
+
+export const variantIcon = {
+  success: CheckCircle,
+  warning: Warning,
+  error: Error,
+  info: Info,
+};
+
+const useStyles = makeStyles((theme) => ({
+  success: {
+    backgroundColor: green[600],
+  },
+  error: {
+    backgroundColor: theme.palette.error.dark,
+  },
+  info: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  warning: {
+    backgroundColor: amber[700],
+  },
+  icon: {
+    fontSize: 20,
+  },
+  iconVariant: {
+    opacity: 0.9,
+    marginRight: theme.spacing(1),
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+}));
+
 const _messageSnackbar = ({
   openSnack,
   variant,
@@ -36,6 +72,9 @@ const _messageSnackbar = ({
   ...customTag
 }) => {
   const handleClose = () => dispatch({type: 'SNACK_UNLOAD'})
+  const classes = useStyles();
+  variant = Object.keys(variantIcon).includes(variant) ? variant : 'info'
+  const Icon = variantIcon[variant];
 
   return (
     <Snackbar
@@ -47,10 +86,20 @@ const _messageSnackbar = ({
       onClose={handleClose}
       {...customTag}
     >
-      <SnackbarContentWrapper
-        onClose={handleClose}
-        variant={variant}
-        message={message}
+      <SnackbarContent
+        className={clsx(classes[variant])}
+        aria-describedby="snackbar"
+        message={
+          <span id="snackbar" className={classes.message}>
+            <Icon className={clsx(classes.icon, classes.iconVariant)} />
+            {message}
+          </span>
+        }
+        action={[
+          <IconButton key="close" aria-label="close" color="inherit" onClick={handleClose}>
+            <Close className={classes.icon} />
+          </IconButton>
+        ]}
       />
     </Snackbar>
   )

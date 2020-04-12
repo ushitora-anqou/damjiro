@@ -13,6 +13,8 @@ import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from "./reducers/SnackbarReducer";
 import MessageSnackbar from "./shared/MessageSnackbar";
+import MIDILoader from "./util/MIDILoader";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -292,7 +294,7 @@ function InputDamjiroGakufu ({ dispatch }) {
             const videoId = json.youtubeVideoId
             const timeOffset = json.timeOffset
             if (!isString(videoId) || !isNumber(timeOffset))
-              throw new Error('Invalid JSON')
+              dispatch({type: 'SNACK_LOAD', message: 'invalid JSON', variant: 'error'})
             dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
             dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
             setErrorMsg(null)
@@ -483,7 +485,7 @@ ScoreDisplay = connect(
   })
 )(ScoreDisplay)
 
-function MIDIEditor () {
+function MIDIEditor ({dispatch}) {
   const [fileBody, setFileBody] = useState(null)
   const [trackNo, setTrackNo] = useState(0)
   const [channelNo, setChannelNo] = useState(0)
@@ -525,7 +527,7 @@ function MIDIEditor () {
       <div>
         <input
           type='file'
-          accept='audio/midi, audio/x-midi'
+          accept='audio/midi, audio/x-midi, audio/mid'
           onChange={e => {
             // Reset
             setFileBody(null)
@@ -538,16 +540,8 @@ function MIDIEditor () {
             errorMsg.current = null
 
             // Read the file
-            try {
-              const file = e.target.files[0]
-              if (file.type !== 'audio/midi' && file.type !== 'audio/x-midi')
-                throw new Error('invalid mime type')
-              const reader = new FileReader()
-              reader.onload = e => setFileBody(e.target.result)
-              reader.readAsArrayBuffer(file)
-            } catch (e) {
-              console.log(e)
-            }
+            const file = e.target.files[0]
+            MIDILoader(file, setFileBody)
           }}
         />
       </div>
@@ -626,6 +620,7 @@ function MIDIEditor () {
     </div>
   )
 }
+MIDIEditor = connect()(MIDIEditor)
 
 function gakufuReducer (
   state = { notes: null, videoId: null, midiBuf: null },
@@ -710,6 +705,7 @@ function App () {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+        <CssBaseline />
         <InputDamjiroGakufu />
         <MIDIFilePicker
           onLoad={buf => {

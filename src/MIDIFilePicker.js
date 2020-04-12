@@ -1,25 +1,19 @@
 import React from 'react'
+import {connect} from "react-redux";
+import MIDILoader from "./util/MIDILoader";
 
-function MIDIFilePicker ({ onLoad }) {
+function MIDIFilePicker ({ onLoad, dispatch }) {
   return (
     <input
       type='file'
       accept='audio/midi, audio/x-midi, audio/mid'
       onChange={e => {
         // Read the file
-        try {
-          const file = e.target.files[0]
-          if (!['audio/midi', 'audio/x-midi', 'audio/mid'].includes(file.type))
-            throw new Error('invalid mime type')
-          const reader = new FileReader()
-          reader.onload = e => onLoad(e.target.result)
-          reader.readAsArrayBuffer(file)
-        } catch (e) {
-          console.log(e)
-        }
+        const file = e.target.files[0]
+        MIDILoader(file, onLoad, dispatch)
       }}
     />
   )
 }
-
+MIDIFilePicker = connect()(MIDIFilePicker)
 export default MIDIFilePicker
