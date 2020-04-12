@@ -3,6 +3,10 @@ import JSLibTimidity from 'js-libtimidity'
 import EventEmitter from 'events'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
+import Button from "@material-ui/core/Button";
+import {PlayArrow} from "@material-ui/icons";
+import {useCardStyles} from "./App";
+import Typography from "@material-ui/core/Typography";
 
 const TIMIDITY_CFG = `
 soundfont GeneralUserGSv1.471.sf2
@@ -89,6 +93,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
   const refOnReady = useRef(onReady)
   const refOnPlay = useRef(onPlay)
   const refOnEnd = useRef(onEnd)
+  const classes = useCardStyles()
 
   useEffect(() => {
     const audioContext = new AudioContext()
@@ -142,13 +147,15 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
   refOnEnd.current = onEnd
 
   return (
-    <div>
-      {pcmPlayer && !isPlaying && (
-        <button type='button' onClick={e => pcmPlayer.play()}>
+    <>
+      {pcmPlayer && !isPlaying ? (
+        <Button size='large' variant='outlined' type='button' onClick={pcmPlayer.play()}>
+          <PlayArrow className={classes.wrapIcon} />
           Play
-        </button>
-      )}
-    </div>
+        </Button>
+      ): <>{!isPlaying && (<Typography component={"subtitle"}>Loading...</Typography>)}</>
+      }
+    </>
   )
 }
 

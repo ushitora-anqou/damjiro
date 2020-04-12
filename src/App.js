@@ -14,7 +14,6 @@ import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
 import MIDILoader from './util/MIDILoader'
-import CssBaseline from '@material-ui/core/CssBaseline'
 
 // material ui
 import Container from "@material-ui/core/Container"
@@ -28,14 +27,20 @@ import {TextField} from "@material-ui/core"
 import CardActions from "@material-ui/core/CardActions"
 import Collapse from "@material-ui/core/Collapse"
 import {makeStyles} from "@material-ui/core/styles"
-import red from "@material-ui/core/colors/red"
 import IconButton from "@material-ui/core/IconButton"
 import clsx from "clsx"
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Divider from "@material-ui/core/Divider"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import CssBaseline from "@material-ui/core/CssBaseline"
-import Box from "@material-ui/core/Box"
+import {Audiotrack, MusicVideo} from "@material-ui/icons";
+import Grid from "@material-ui/core/Grid";
+
+// font-awesome
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faFileAudio} from "@fortawesome/free-regular-svg-icons";
+library.add(faFileAudio)
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -303,9 +308,15 @@ function InputDamjiroGakufu ({ dispatch }) {
     <FormControl fullWidth>
       <TextField
         value={gakufuText}
-        label='Enter Damjiro gakuhu.'
+        label='Enter Damjiro Gakuhu.'
         helperText={errorMsg}
         error={errorMsg}
+        multiline={true}
+        rows={3}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        variant={'outlined'}
         onChange={e => {
           setGakufuText(e.target.value)
           try {
@@ -347,7 +358,7 @@ InputDamjiroGakufu = connect()(InputDamjiroGakufu)
 
 function TimeOffsetForm ({ timeOffset, dispatch }) {
   return (
-    <FormControl>
+    <FormControl fullWidth>
       <InputLabel>Offset</InputLabel>
       <Input
         type='number'
@@ -370,7 +381,7 @@ TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
 
 function PitchOffsetForm ({ pitchOffset, dispatch }) {
   return (
-    <FormControl>
+    <FormControl fullWidth>
       <InputLabel>Pitch Offset</InputLabel>
       <Input
         type='number'
@@ -396,6 +407,7 @@ function NotesScroller ({
   gakufu,
   user: { notes: uNotes, timeOffset, pitchOffset }
 }) {
+  const marginClasses = useMarginStyles()
   const playing = useRef(false)
   const curTimeOffset = useRef(timeOffset)
   const curPitchOffset = useRef(pitchOffset)
@@ -462,15 +474,6 @@ function NotesScroller ({
 
   return (
     <>
-      {gakufu.midiBuf && (
-        <MIDIPlayer
-          buffer={gakufu.midiBuf}
-          onReady={e => (video.current = e.target)}
-          onPlay={onPlay}
-          onEnd={() => (playing.current = false)}
-        />
-      )}
-
       {gakufu.videoId && (
         <YouTube
           videoId={gakufu.videoId}
@@ -482,12 +485,31 @@ function NotesScroller ({
       )}
 
       {gakufu.notes && (
-        <NotesDisplay
-          curtpos={curtpos}
-          gNotes={gakufu.notes}
-          uNotes={uNotes}
-          seconds={30}
-        />
+        <Grid container direction='row' wrap='wrap' alignItems='flex-end'>
+          <Grid item className={marginClasses.mr2}>
+            <NotesDisplay
+              curtpos={curtpos}
+              gNotes={gakufu.notes}
+              uNotes={uNotes}
+              seconds={30}
+            />
+          </Grid>
+          <Grid item className={[marginClasses.mr2, marginClasses.mt1]} style={{'maxWidth': '140px'}} container direction='column' spacing={2}>
+            <Grid item>
+              {gakufu.midiBuf && (
+                <MIDIPlayer
+                  buffer={gakufu.midiBuf}
+                  onReady={e => (video.current = e.target)}
+                  onPlay={onPlay}
+                  onEnd={() => (playing.current = false)}
+                />
+              )}
+            </Grid>
+            <Grid item>
+              <ScoreDisplay/>
+            </Grid>
+          </Grid>
+        </Grid>
       )}
     </>
   )
@@ -664,25 +686,6 @@ function MIDIEditor ({ dispatch }) {
 }
 MIDIEditor = connect()(MIDIEditor)
 
-const useCardStyles = makeStyles((theme) => ({
-  expand: {
-    transform: 'rotate(0deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-}))
-
-const useMarginStyles = makeStyles((theme) => ({
-  m1: {
-    margin: theme.spacing(1)
-  }
-}))
-
 function SingFromGakuhuCard() {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
@@ -696,26 +699,41 @@ function SingFromGakuhuCard() {
     <Card className={marginClasses.m1}>
       <CardContent>
         <Typography variant='h5'>
-          Sing to use Damjiro gakuhu.
+          <Audiotrack className={classes.wrapIcon}/>
+          Sing a song
         </Typography>
-        <InputDamjiroGakufu />
-        <MIDIFilePicker
-          onLoad={buf => {
-            store.dispatch({
-              type: 'SET_GAKUFU',
-              gakufu: {
-                notes: midi2notes(buf, 0, 0),
-                midiBuf: buf,
-                videoId: null
-              }
-            })
-          }}
-        />
-        <ScoreDisplay />
+        <Grid className={marginClasses.mt2} container direction='row' justify='space-around'>
+          <Grid item xs={5}>
+            <Typography variant='h6' className={marginClasses.mb2} color='textSecondary'>
+              <MusicVideo className={classes.wrapIcon}/>
+              From Damjiro Gakufu file.
+            </Typography>
+            <InputDamjiroGakufu/>
+          </Grid>
+          <Divider orientation="vertical" flexItem/>
+          <Grid item xs={5} container direction='column' justify='space-between'>
+            <Typography variant='h6' color='textSecondary'>
+              <FontAwesomeIcon icon={['far', 'file-audio']} className={classes.wrapIcon}/>
+              From midi file.
+            </Typography>
+            <MIDIFilePicker
+              onLoad={buf => {
+                store.dispatch({
+                  type: 'SET_GAKUFU',
+                  gakufu: {
+                    notes: midi2notes(buf, 0, 0),
+                    midiBuf: buf,
+                    videoId: null
+                  }
+                })
+              }}
+            />
+          </Grid>
+        </Grid>
         <NotesScroller />
       </CardContent>
       <CardActions disableSpacing>
-        <Typography color='textSecondary'>
+        <Typography color='textSecondary' className={marginClasses.ml1}>
             Adjustment
         </Typography>
         <IconButton
@@ -724,22 +742,20 @@ function SingFromGakuhuCard() {
             })}
             onClick={handleExpandClick}
             aria-expanded={expanded}
-            aria-label="show more"
+            aria-label='show more'
         >
           <ExpandMoreIcon />
         </IconButton>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent disableSpacing>
-          <Box display='flex' flexDirection='column'>
-            <Box alignSelf='start'>
-              <TimeOffsetForm/>
-            </Box>
-            <Box alignSelf='start'>
-              <PitchOffsetForm/>
-            </Box>
-          </Box>
-        </CardContent>
+      <Collapse in={expanded} timeout='auto' unmountOnExit>
+        <Grid container spacing={5} direction='row' className={marginClasses.collapse}>
+          <Grid item xs={3}>
+            <TimeOffsetForm/>
+          </Grid>
+          <Grid item xs={3}>
+            <PitchOffsetForm/>
+          </Grid>
+        </Grid>
       </Collapse>
     </Card>
   )
@@ -823,6 +839,59 @@ const persistedReducer = persistReducer(
 
 const store = createStore(persistedReducer)
 const persistor = persistStore(store)
+
+export const useCardStyles = makeStyles((theme) => ({
+  expand: {
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
+  },
+  wrapIcon: {
+    verticalAlign: 'middle',
+    display: 'inline-flex',
+    marginRight: theme.spacing(1)
+  }
+}))
+
+export const useMarginStyles = makeStyles((theme) => ({
+  mt1: {
+    marginTop: theme.spacing(1)
+  },
+  mt2: {
+    marginTop: theme.spacing(2)
+  },
+  mt3: {
+    marginTop: theme.spacing(3)
+  },
+  mb1: {
+    marginBottom: theme.spacing(1)
+  },
+  mb2: {
+    marginBottom: theme.spacing(2)
+  },
+  m1: {
+    margin: theme.spacing(1)
+  },
+  m3: {
+    margin: theme.spacing(3)
+  },
+  ml1: {
+    marginLeft: theme.spacing(1)
+  },
+  collapse: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    marginBottom: theme.spacing(3)
+  },
+  mr2: {
+    marginRight: theme.spacing(2)
+  }
+}))
 
 function App () {
   const marginStyles = useMarginStyles()
