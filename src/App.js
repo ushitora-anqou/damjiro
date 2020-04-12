@@ -152,7 +152,7 @@ async function createPitchDetector (audioContext) {
 
   const getPitch = async () => {
     const [freq, inputBuffer, currentTime] = await pitchHandler.getPitch()
-    if (!freq)  return [null, inputBuffer, currentTime]
+    if (!freq) return [null, inputBuffer, currentTime]
     const m = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69
     return [m, inputBuffer, currentTime]
   }
@@ -384,13 +384,14 @@ function NotesScroller ({
     const getBiasedVideoTime = () =>
       sec2us(video.current.getCurrentTime()) - curTimeOffset.current
     let prev = null
-    while(playing.current) {
+    while (playing.current) {
       let [pitch, inputBuffer, inputTime] = await getPitch()
       if (pitch && prev != inputTime) {
         const videoCurrentTime = getBiasedVideoTime()
         const micCurrentTime = sec2us(audioContext.currentTime)
         const duration = sec2us(inputBuffer.duration)
-        const tpos = videoCurrentTime - (micCurrentTime - sec2us(inputTime) + duration)
+        const tpos =
+          videoCurrentTime - (micCurrentTime - sec2us(inputTime) + duration)
         let biasedPitch = pitch
         let correct = false
 
