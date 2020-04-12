@@ -9,6 +9,12 @@ import { PersistGate } from 'redux-persist/integration/react'
 import ml5 from 'ml5'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
+import MIDIPlayer from './MIDIPlayer'
+import MIDIFilePicker from './MIDIFilePicker'
+import snackbarReducer from './reducers/SnackbarReducer'
+import MessageSnackbar from './shared/MessageSnackbar'
+import MIDILoader from './util/MIDILoader'
+import CssBaseline from '@material-ui/core/CssBaseline'
 
 // material ui
 import Container from "@material-ui/core/Container"
@@ -86,41 +92,31 @@ function midi2notes (buffer, targetTrack, targetChannel) {
   if (midi.header.getTimeDivision() !== MIDIFile.Header.TICKS_PER_BEAT)
     throw new Error('Unsupported time division')
 
-  const metrical = midi.header.getTicksPerBeat()
-
-  let tempo = null
   const notes_begin = []
   const notes_end = []
-  const events = midi.getTrackEvents(targetTrack)
-  let elapsed_time = 0
+  const events = midi.getMidiEvents()
   for (let ev of events) {
-    elapsed_time += ev.delta
+    if (ev.channel !== targetChannel) continue
 
     switch (ev.subtype) {
-      case MIDIEvents.EVENT_META_SET_TEMPO:
-        tempo = ev.tempo
-        break
-
       case MIDIEvents.EVENT_MIDI_NOTE_ON:
-        if (ev.channel !== targetChannel) break
-        notes_begin.push([elapsed_time, ev.param1])
+        if (notes_begin.length !== notes_end.length) break
+        notes_begin.push([ev.playTime * 1000, ev.param1])
         break
 
       case MIDIEvents.EVENT_MIDI_NOTE_OFF:
-        if (ev.channel !== targetChannel) break
         if (
-          notes_begin.length === 0 ||
+          notes_begin.length - notes_end.length !== 1 ||
           notes_begin[notes_begin.length - 1][1] !== ev.param1
         )
-          throw new Error('Invalid note off')
-        notes_end.push([elapsed_time, ev.param1])
+          break
+        notes_end.push([ev.playTime * 1000, ev.param1])
         break
 
       default:
         break
     }
   }
-  if (!tempo) throw new Error('Tempo Not found')
   if (notes_begin.length !== notes_end.length)
     throw new Error('Invalid # of note offs')
 
@@ -129,8 +125,8 @@ function midi2notes (buffer, targetTrack, targetChannel) {
     const b = notes_begin[i]
     const e = notes_end[i]
     notes.push({
-      tpos: (b[0] * tempo) / metrical,
-      duration: ((e[0] - b[0]) * tempo) / metrical,
+      tpos: b[0],
+      duration: e[0] - b[0],
       pitch: b[1]
     })
   }
@@ -285,9 +281,15 @@ function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
         {// note bars
         notes2bars(gNotes, 'gray')}
         {// user's correct note bars
-        notes2bars(uNotes.filter(n => n.correct), '#FFA500')}
+        notes2bars(
+          uNotes.filter(n => n.correct),
+          '#FFA500'
+        )}
         {// user's wrong note bars
-        notes2bars(uNotes.filter(n => !n.correct), 'red')}
+        notes2bars(
+          uNotes.filter(n => !n.correct),
+          'red'
+        )}
       </NotesSVG>
     </>
   )
@@ -315,14 +317,25 @@ function InputDamjiroGakufu ({ dispatch }) {
             }))
             const videoId = json.youtubeVideoId
             const timeOffset = json.timeOffset
-            if (!isString(videoId) || !isNumber(timeOffset))
-              throw new Error('Invalid JSON')
-            dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
-            dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
-            setErrorMsg(null)
+            if (!isString(videoId) || !isNumber(timeOffset)) {
+              dispatch({
+                type: 'SNACK_LOAD',
+                message: 'invalid JSON',
+                variant: 'error'
+              })
+            } else {
+              dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
+              dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
+              setErrorMsg(null)
+            }
           } catch (e) {
             dispatch({ type: 'RESET_GAKUFU' })
             setErrorMsg(e.message)
+            dispatch({
+              type: 'SNACK_LOAD',
+              message: e.message,
+              variant: 'error'
+            })
           }
           dispatch({ type: 'RESET_USER_NOTES' })
         }}
@@ -412,16 +425,27 @@ function NotesScroller ({
       const pitch = await getPitch()
       const now = getBiasedVideoTime()
       if (pitch) {
-        const biasedPitch = pitch + curPitchOffset.current
         const duration = now - prev
-        const lb =
-          gakufu.notes[lower_bound(gakufu.notes, n => n.tpos < prev) - 1]
+        let biasedPitch = pitch
+        let correct = false
+
+        const lbIdx = lower_bound(gakufu.notes, n => n.tpos < prev) - 1
+        const lb = lbIdx >= 0 ? gakufu.notes[lbIdx] : gakufu.notes[0]
+        if (lb) {
+          biasedPitch = lb.pitch + curPitchOffset.current
+          let gap =
+            pitch - biasedPitch - Math.floor((pitch - biasedPitch) / 12) * 12
+          if (gap > 6) gap -= 12
+          biasedPitch += gap
+          if (lb.tpos < prev && prev < lb.tpos + lb.duration && gap === 0)
+            correct = true
+        }
+
         const note = {
           tpos: prev,
           duration,
           pitch: biasedPitch,
-          correct:
-            lb && prev < lb.tpos + lb.duration && lb.pitch === biasedPitch
+          correct
         }
         dispatch({ type: 'APPEND_USER_NOTE', note })
       }
@@ -436,17 +460,26 @@ function NotesScroller ({
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
 
-  if (!gakufu.notes) return <div />
-
   return (
     <>
-      <YouTube
-        videoId={gakufu.videoId}
-        onReady={e => (video.current = e.target)}
-        onPlay={onPlay}
-        onPause={() => (playing.current = false)}
-        onEnd={() => (playing.current = false)}
-      />
+      {gakufu.midiBuf && (
+        <MIDIPlayer
+          buffer={gakufu.midiBuf}
+          onReady={e => (video.current = e.target)}
+          onPlay={onPlay}
+          onEnd={() => (playing.current = false)}
+        />
+      )}
+
+      {gakufu.videoId && (
+        <YouTube
+          videoId={gakufu.videoId}
+          onReady={e => (video.current = e.target)}
+          onPlay={onPlay}
+          onPause={() => (playing.current = false)}
+          onEnd={() => (playing.current = false)}
+        />
+      )}
 
       {gakufu.notes && (
         <NotesDisplay
@@ -494,7 +527,7 @@ ScoreDisplay = connect(
   })
 )(ScoreDisplay)
 
-function MIDIEditor () {
+function MIDIEditor ({ dispatch }) {
   const [fileBody, setFileBody] = useState(null)
   const [trackNo, setTrackNo] = useState(0)
   const [channelNo, setChannelNo] = useState(0)
@@ -536,7 +569,7 @@ function MIDIEditor () {
       <div>
         <input
           type='file'
-          accept='audio/midi, audio/x-midi'
+          accept='audio/midi, audio/x-midi, audio/mid'
           onChange={e => {
             // Reset
             setFileBody(null)
@@ -549,16 +582,8 @@ function MIDIEditor () {
             errorMsg.current = null
 
             // Read the file
-            try {
-              const file = e.target.files[0]
-              if (file.type !== 'audio/midi' && file.type !== 'audio/x-midi')
-                throw 'invalid mime type'
-              const reader = new FileReader()
-              reader.onload = e => setFileBody(e.target.result)
-              reader.readAsArrayBuffer(file)
-            } catch (e) {
-              console.log(e)
-            }
+            const file = e.target.files[0]
+            MIDILoader(file, setFileBody, dispatch)
           }}
         />
       </div>
@@ -637,6 +662,7 @@ function MIDIEditor () {
     </div>
   )
 }
+MIDIEditor = connect()(MIDIEditor)
 
 const useCardStyles = makeStyles((theme) => ({
   expand: {
@@ -666,7 +692,6 @@ function SingFromGakuhuCard() {
     setExpanded(!expanded)
   }
 
-
   return (
     <Card className={marginClasses.m1}>
       <CardContent>
@@ -674,6 +699,18 @@ function SingFromGakuhuCard() {
           Sing to use Damjiro gakuhu.
         </Typography>
         <InputDamjiroGakufu />
+        <MIDIFilePicker
+          onLoad={buf => {
+            store.dispatch({
+              type: 'SET_GAKUFU',
+              gakufu: {
+                notes: midi2notes(buf, 0, 0),
+                midiBuf: buf,
+                videoId: null
+              }
+            })
+          }}
+        />
         <ScoreDisplay />
         <NotesScroller />
       </CardContent>
@@ -708,7 +745,10 @@ function SingFromGakuhuCard() {
   )
 }
 
-function gakufuReducer (state = { notes: null, videoId: null }, action) {
+function gakufuReducer (
+  state = { notes: null, videoId: null, midiBuf: null },
+  action
+) {
   switch (action.type) {
     case 'SET_GAKUFU':
       return action.gakufu
@@ -768,8 +808,10 @@ const rootReducer = combineReducers({
       whitelist: ['pitchOffset']
     },
     userReducer
-  )
+  ),
+  snack: snackbarReducer
 })
+
 const persistedReducer = persistReducer(
   {
     key: 'root',
@@ -778,6 +820,7 @@ const persistedReducer = persistReducer(
   },
   rootReducer
 )
+
 const store = createStore(persistedReducer)
 const persistor = persistStore(store)
 
@@ -802,6 +845,7 @@ function App () {
             </CardContent>
           </Card>
         </Container>
+        <MessageSnackbar />
       </PersistGate>
     </Provider>
   )

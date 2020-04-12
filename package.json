@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.9.9",
+    "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "js-libtimidity": "https://github.com/ushitora-anqou/js-libtimidity.git",
     "midievents": "^2.0.0",
     "midifile": "^2.0.0",
     "ml5": "^0.5.0",
@@ -24,7 +25,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "check": "prettier-standard src/* src/**/* --check",
+    "fmt": "prettier-standard  src/* src/**/*",
+    "lint": "prettier-standard src/* src/**/* --lint"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,7 +45,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://ushitora-anqou.github.io/damjiro/",
+  "homepage": "http://localhost:3000",
   "devDependencies": {
     "prettier-standard": "^16.2.1"
   }

@@ -1,15 +1,21 @@
 language: node_js
 node_js:
-    - 12
+  - 12
+cache:
+  yarn: true
+  directories:
+    - node_modules
 branches:
-    only:
-        - master
+  only:
+    - master
 before_install:
   - npm install -g yarn
 script:
-    - CI=false yarn build
+  - yarn run check
+  - CI=false PUBLIC_URL=https://ushitora-anqou.github.io/damjiro/ yarn build
 deploy:
-    provider: pages:git
-    token: $GITHUB_TOKEN
-    edge: true
-    local_dir: build/
+  provider: pages
+  strategy: git
+  token: $GITHUB_TOKEN
+  edge: true
+  local_dir: build/
