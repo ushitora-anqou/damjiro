@@ -299,12 +299,19 @@ function InputDamjiroGakufu ({ dispatch }) {
                 message: 'invalid JSON',
                 variant: 'error'
               })
-            dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
-            dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
-            setErrorMsg(null)
+            else {
+              dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
+              dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
+              setErrorMsg(null)
+            }
           } catch (e) {
             dispatch({ type: 'RESET_GAKUFU' })
             setErrorMsg(e.message)
+            dispatch({
+              type: 'SNACK_LOAD',
+              message: e.message,
+              variant: 'error'
+            })
           }
           dispatch({ type: 'RESET_USER_NOTES' })
         }}
