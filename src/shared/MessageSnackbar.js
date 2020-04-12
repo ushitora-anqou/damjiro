@@ -3,6 +3,31 @@ import SnackbarContentWrapper from "./SnackbarContentWrapper";
 import React from "react";
 import {connect} from "react-redux";
 
+/**
+ * Show snackbar with custom message from Redux.
+ * How to use:
+ * 1. Connect your component with dispatch. For example:
+ * ```
+ * const _yourComponent = (dispatch) => {
+ *
+ * }
+ * const YourComponent()(_yourComponent);
+ * ```
+ * 2. Use dispatch() when you want to show messages with snackbar.
+ * `dispatch({type: 'SNACK_LOAD', message: 'some Message', variant: 'error'})`
+ *
+ * @param openSnack
+ *  from redux. no need to config.
+ * @param variant default 'info'
+ *  from redux, need to config. you can choose one of 'error', 'info', 'success', 'warning'.
+ * @param message
+ *  from redux, need to config.
+ * @param dispatch
+ *  from redux.
+ * @param customTag
+ *  you can customize Snackbar from material UI. add some tag implemented Snackbar.
+ * @returns <Snackbar />
+ */
 const _messageSnackbar = ({
   openSnack,
   variant,
