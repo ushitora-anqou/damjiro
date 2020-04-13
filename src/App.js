@@ -13,6 +13,7 @@ import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
+import MIDIEditor from "./MIDIEditor";
 
 // material ui
 import Container from "@material-ui/core/Container"
@@ -39,7 +40,6 @@ import Grid from "@material-ui/core/Grid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faFileAudio} from "@fortawesome/free-regular-svg-icons";
-import MIDIEditor from "./MIDIEditor";
 library.add(faFileAudio)
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript

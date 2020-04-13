@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
-import Grid from "@material-ui/core/Grid";
-import {Hidden, TextField} from "@material-ui/core";
 import MIDILoader from "./util/MIDILoader";
 import YouTube from "react-youtube";
 import {connect} from "react-redux";
 import {midi2notes, NotesDisplay} from "./App";
+
+//material-ui
 import {GetApp, Movie, NavigateBefore, NavigateNext} from "@material-ui/icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import StepConnector from "@material-ui/core/StepConnector";
@@ -19,6 +19,8 @@ import clsx from "clsx";
 import Divider from "@material-ui/core/Divider";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
+import Grid from "@material-ui/core/Grid";
+import {Hidden, TextField} from "@material-ui/core";
 
 function makeNotesSensible (notes, introTime, pitchOffset) {
   if (notes.length === 0) return notes
