@@ -13,33 +13,33 @@ import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
-import MIDIEditor from "./MIDIEditor";
+import MIDIEditor from './MIDIEditor'
 
 // material ui
-import Container from "@material-ui/core/Container"
-import Input from "@material-ui/core/Input"
-import FormControl from "@material-ui/core/FormControl"
-import InputLabel from "@material-ui/core/InputLabel"
-import Card from "@material-ui/core/Card"
-import Typography from "@material-ui/core/Typography"
-import CardContent from "@material-ui/core/CardContent"
-import {TextField} from "@material-ui/core"
-import CardActions from "@material-ui/core/CardActions"
-import Collapse from "@material-ui/core/Collapse"
-import {makeStyles} from "@material-ui/core/styles"
-import IconButton from "@material-ui/core/IconButton"
-import clsx from "clsx"
+import Container from '@material-ui/core/Container'
+import Input from '@material-ui/core/Input'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import Card from '@material-ui/core/Card'
+import Typography from '@material-ui/core/Typography'
+import CardContent from '@material-ui/core/CardContent'
+import { TextField } from '@material-ui/core'
+import CardActions from '@material-ui/core/CardActions'
+import Collapse from '@material-ui/core/Collapse'
+import { makeStyles } from '@material-ui/core/styles'
+import IconButton from '@material-ui/core/IconButton'
+import clsx from 'clsx'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Divider from "@material-ui/core/Divider"
-import InputAdornment from "@material-ui/core/InputAdornment"
-import CssBaseline from "@material-ui/core/CssBaseline"
-import {Audiotrack, Edit, MusicVideo, Settings} from "@material-ui/icons";
-import Grid from "@material-ui/core/Grid";
+import Divider from '@material-ui/core/Divider'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import { Audiotrack, Edit, MusicVideo, Settings } from '@material-ui/icons'
+import Grid from '@material-ui/core/Grid'
 
 // font-awesome
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {faFileAudio} from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faFileAudio } from '@fortawesome/free-regular-svg-icons'
 library.add(faFileAudio)
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
@@ -290,7 +290,7 @@ function InputDamjiroGakufu ({ dispatch }) {
         multiline={true}
         rows={3}
         InputLabelProps={{
-          shrink: true,
+          shrink: true
         }}
         variant={'outlined'}
         onChange={e => {
@@ -470,7 +470,14 @@ function NotesScroller ({
               seconds={30}
             />
           </Grid>
-          <Grid item className={[marginClasses.mr2, marginClasses.mt1]} style={{'maxWidth': '140px'}} container direction='column' spacing={2}>
+          <Grid
+            item
+            className={[marginClasses.mr2, marginClasses.mt1]}
+            style={{ maxWidth: '140px' }}
+            container
+            direction='column'
+            spacing={2}
+          >
             <Grid item>
               {gakufu.midiBuf && (
                 <MIDIPlayer
@@ -482,7 +489,7 @@ function NotesScroller ({
               )}
             </Grid>
             <Grid item>
-              <ScoreDisplay/>
+              <ScoreDisplay />
             </Grid>
           </Grid>
         </Grid>
@@ -525,7 +532,7 @@ ScoreDisplay = connect(
   })
 )(ScoreDisplay)
 
-function SingFromGakufuCard() {
+function SingFromGakufuCard () {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
   const [expanded, setExpanded] = React.useState(false)
@@ -538,21 +545,39 @@ function SingFromGakufuCard() {
     <Card className={marginClasses.m1}>
       <CardContent>
         <Typography variant='h5'>
-          <Audiotrack className={classes.wrapIcon}/>
+          <Audiotrack className={classes.wrapIcon} />
           Sing a song
         </Typography>
-        <Grid className={marginClasses.mt2} container direction='row' justify='space-around'>
+        <Grid
+          className={marginClasses.mt2}
+          container
+          direction='row'
+          justify='space-around'
+        >
           <Grid item xs={5}>
-            <Typography variant='h6' className={marginClasses.mb2} color='textSecondary'>
-              <MusicVideo className={classes.wrapIcon}/>
+            <Typography
+              variant='h6'
+              className={marginClasses.mb2}
+              color='textSecondary'
+            >
+              <MusicVideo className={classes.wrapIcon} />
               From Damjiro Gakufu file.
             </Typography>
-            <InputDamjiroGakufu/>
+            <InputDamjiroGakufu />
           </Grid>
-          <Divider orientation="vertical" flexItem/>
-          <Grid item xs={5} container direction='column' justify='space-between'>
+          <Divider orientation='vertical' flexItem />
+          <Grid
+            item
+            xs={5}
+            container
+            direction='column'
+            justify='space-between'
+          >
             <Typography variant='h6' color='textSecondary'>
-              <FontAwesomeIcon icon={['far', 'file-audio']} className={classes.wrapIcon}/>
+              <FontAwesomeIcon
+                icon={['far', 'file-audio']}
+                className={classes.wrapIcon}
+              />
               From midi file.
             </Typography>
             <MIDIFilePicker
@@ -573,27 +598,32 @@ function SingFromGakufuCard() {
       </CardContent>
       <CardActions disableSpacing>
         <Typography color='textSecondary' className={marginClasses.ml1}>
-          <Settings className={classes.wrapIcon}/>
+          <Settings className={classes.wrapIcon} />
           Adjustment
         </Typography>
         <IconButton
-            className={clsx(classes.expand, {
-              [classes.expandOpen]: expanded,
-            })}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label='show more'
+          className={clsx(classes.expand, {
+            [classes.expandOpen]: expanded
+          })}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label='show more'
         >
           <ExpandMoreIcon />
         </IconButton>
       </CardActions>
       <Collapse in={expanded} timeout='auto' unmountOnExit>
-        <Grid container spacing={5} direction='row' className={marginClasses.collapse}>
+        <Grid
+          container
+          spacing={5}
+          direction='row'
+          className={marginClasses.collapse}
+        >
           <Grid item xs={3}>
-            <TimeOffsetForm/>
+            <TimeOffsetForm />
           </Grid>
           <Grid item xs={3}>
-            <PitchOffsetForm/>
+            <PitchOffsetForm />
           </Grid>
         </Grid>
       </Collapse>
@@ -609,7 +639,7 @@ const MakeGakufuCard = () => {
     <Card className={marginClasses.m1}>
       <CardContent>
         <Typography variant='h5'>
-          <Edit className={classes.wrapIcon}/>
+          <Edit className={classes.wrapIcon} />
           Make Damjiro Gakuhu.
         </Typography>
       </CardContent>
@@ -697,16 +727,16 @@ const persistedReducer = persistReducer(
 const store = createStore(persistedReducer)
 const persistor = persistStore(store)
 
-export const useCardStyles = makeStyles((theme) => ({
+export const useCardStyles = makeStyles(theme => ({
   expand: {
     transform: 'rotate(0deg)',
     marginLeft: 'auto',
     transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
+      duration: theme.transitions.duration.shortest
+    })
   },
   expandOpen: {
-    transform: 'rotate(180deg)',
+    transform: 'rotate(180deg)'
   },
   wrapIcon: {
     verticalAlign: 'middle',
@@ -715,7 +745,7 @@ export const useCardStyles = makeStyles((theme) => ({
   }
 }))
 
-export const useMarginStyles = makeStyles((theme) => ({
+export const useMarginStyles = makeStyles(theme => ({
   mt1: {
     marginTop: theme.spacing(1)
   },
@@ -760,8 +790,8 @@ function App () {
           <Typography variant='h4' className={marginStyles.m1}>
             Damjiro
           </Typography>
-          <SingFromGakufuCard/>
-          <MakeGakufuCard/>
+          <SingFromGakufuCard />
+          <MakeGakufuCard />
         </Container>
         <MessageSnackbar />
       </PersistGate>

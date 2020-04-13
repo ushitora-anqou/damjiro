@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import MIDILoader from './util/MIDILoader'
-import TextField from "@material-ui/core/TextField";
+import TextField from '@material-ui/core/TextField'
 
 function MIDIFilePicker ({ onLoad, dispatch }) {
   return (
@@ -15,7 +15,7 @@ function MIDIFilePicker ({ onLoad, dispatch }) {
         MIDILoader(file, onLoad, dispatch)
       }}
       InputLabelProps={{
-        shrink: true,
+        shrink: true
       }}
       variant={'outlined'}
     />

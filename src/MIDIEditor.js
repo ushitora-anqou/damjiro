@@ -1,26 +1,26 @@
-import React, {useEffect, useRef, useState} from "react";
-import MIDILoader from "./util/MIDILoader";
-import YouTube from "react-youtube";
-import {connect} from "react-redux";
-import {midi2notes, NotesDisplay} from "./App";
+import React, { useEffect, useRef, useState } from 'react'
+import MIDILoader from './util/MIDILoader'
+import YouTube from 'react-youtube'
+import { connect } from 'react-redux'
+import { midi2notes, NotesDisplay } from './App'
 
 //material-ui
-import {GetApp, Movie, NavigateBefore, NavigateNext} from "@material-ui/icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import StepConnector from "@material-ui/core/StepConnector";
-import {makeStyles} from "@material-ui/core/styles";
-import withStyles from "@material-ui/core/styles/withStyles";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import Step from "@material-ui/core/Step";
-import Stepper from "@material-ui/core/Stepper";
-import StepLabel from "@material-ui/core/StepLabel";
-import clsx from "clsx";
-import Divider from "@material-ui/core/Divider";
-import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
-import Grid from "@material-ui/core/Grid";
-import {Hidden, TextField} from "@material-ui/core";
+import { GetApp, Movie, NavigateBefore, NavigateNext } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import StepConnector from '@material-ui/core/StepConnector'
+import { makeStyles } from '@material-ui/core/styles'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import Step from '@material-ui/core/Step'
+import Stepper from '@material-ui/core/Stepper'
+import StepLabel from '@material-ui/core/StepLabel'
+import clsx from 'clsx'
+import Divider from '@material-ui/core/Divider'
+import CardContent from '@material-ui/core/CardContent'
+import CardActions from '@material-ui/core/CardActions'
+import Grid from '@material-ui/core/Grid'
+import { Hidden, TextField } from '@material-ui/core'
 
 function makeNotesSensible (notes, introTime, pitchOffset) {
   if (notes.length === 0) return notes
@@ -48,26 +48,24 @@ function gakufu2json (gNotes, youtubeVideoId, timeOffset) {
 
 const ColorlibConnector = withStyles({
   alternativeLabel: {
-    top: 22,
+    top: 22
   },
   active: {
     '& $line': {
-      backgroundImage:
-        'linear-gradient( 136deg, #000046 0%, #1CB5E0 80%)',
-    },
+      backgroundImage: 'linear-gradient( 136deg, #000046 0%, #1CB5E0 80%)'
+    }
   },
   completed: {
     '& $line': {
-      backgroundImage:
-        'linear-gradient( 136deg, #000046 0%, #1CB5E0 80%)'
-    },
+      backgroundImage: 'linear-gradient( 136deg, #000046 0%, #1CB5E0 80%)'
+    }
   },
   line: {
     height: 3,
     border: 0,
     backgroundColor: '#eaeaf0',
-    borderRadius: 1,
-  },
+    borderRadius: 1
+  }
 })(StepConnector)
 
 const useColorlibStepIconStyles = makeStyles({
@@ -80,50 +78,52 @@ const useColorlibStepIconStyles = makeStyles({
     display: 'flex',
     borderRadius: '50%',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   active: {
-    backgroundImage:
-      'linear-gradient( 136deg, #1CB5E0 20%, #000046 100%)',
-    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
+    backgroundImage: 'linear-gradient( 136deg, #1CB5E0 20%, #000046 100%)',
+    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)'
   },
   completed: {
-    backgroundImage:
-      'linear-gradient( 136deg, #1CB5E0 20%, #000046 100%)',
+    backgroundImage: 'linear-gradient( 136deg, #1CB5E0 20%, #000046 100%)'
   },
   font: {
     fontSize: '24px'
   }
 })
 
-function ColoredStepIcon(props) {
+function ColoredStepIcon (props) {
   const classes = useColorlibStepIconStyles()
   const { active, completed } = props
 
   const icons = {
     1: <Movie />,
-    2: <FontAwesomeIcon icon={['far', 'file-audio']} fontSize={500}/>,
-    3: <GetApp />,
+    2: <FontAwesomeIcon icon={['far', 'file-audio']} fontSize={500} />,
+    3: <GetApp />
   }
 
   return (
     <div
-      className={clsx(classes.root, {
-        [classes.active]: active,
-        [classes.completed]: completed,
-      }, classes.font)}
+      className={clsx(
+        classes.root,
+        {
+          [classes.active]: active,
+          [classes.completed]: completed
+        },
+        classes.font
+      )}
     >
       {icons[String(props.icon)]}
     </div>
   )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    width: '100%'
   },
   button: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   videoFrame: {
     width: '640px',
@@ -131,17 +131,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-function MIDIEditor({dispatch}) {
+function MIDIEditor ({ dispatch }) {
   const classes = useStyles()
   const [activeStep, setActiveStep] = React.useState(0)
-  const steps =  ['Input youtube Id', 'Select midi file', 'Check output Gakufu']
+  const steps = ['Input youtube Id', 'Select midi file', 'Check output Gakufu']
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    setActiveStep(prevActiveStep => prevActiveStep + 1)
   }
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
   const handleReset = () => {
@@ -173,12 +173,26 @@ function MIDIEditor({dispatch}) {
     }
   }
 
-  const getStepContent = (step) => {
+  const getStepContent = step => {
     switch (step) {
       case 0:
         return (
-          <Grid container direction='row' wrap='wrap' justify='space-around' spacing={2}>
-            <Grid item style={{'maxWidth': '300px'}} xl={3} lg={12} container direction='column' spacing={2}>
+          <Grid
+            container
+            direction='row'
+            wrap='wrap'
+            justify='space-around'
+            spacing={2}
+          >
+            <Grid
+              item
+              style={{ maxWidth: '300px' }}
+              xl={3}
+              lg={12}
+              container
+              direction='column'
+              spacing={2}
+            >
               <Grid item>
                 <TextField
                   fullWidth
@@ -187,7 +201,7 @@ function MIDIEditor({dispatch}) {
                   onChange={e => setYoutubeVideoId(e.target.value)}
                   value={youtubeVideoId || ''}
                   InputLabelProps={{
-                    shrink: true,
+                    shrink: true
                   }}
                   variant={'outlined'}
                 />
@@ -201,7 +215,7 @@ function MIDIEditor({dispatch}) {
                   onChange={e => setIntroTime(Number(e.target.value))}
                   value={introTime}
                   InputLabelProps={{
-                    shrink: true,
+                    shrink: true
                   }}
                   variant={'outlined'}
                 />
@@ -210,7 +224,7 @@ function MIDIEditor({dispatch}) {
             <Hidden mdDown>
               <Divider orientation='vertical' flexItem />
             </Hidden>
-            <Grid item style={{'maxWidth': '640px'}} xl={9} lg={12}>
+            <Grid item style={{ maxWidth: '640px' }} xl={9} lg={12}>
               {youtubeVideoId ? (
                 <YouTube
                   videoId={youtubeVideoId}
@@ -220,54 +234,63 @@ function MIDIEditor({dispatch}) {
                     video.playVideo()
                     video.pauseVideo()
                   }}
-                />): (<div className={classes.videoFrame}/>)
-              }
+                />
+              ) : (
+                <div className={classes.videoFrame} />
+              )}
             </Grid>
           </Grid>
         )
       case 1:
         return (
-          <Grid container direction='column' justify='center' alignItems='center' spacing={2}>
+          <Grid
+            container
+            direction='column'
+            justify='center'
+            alignItems='center'
+            spacing={2}
+          >
             <Grid item container direction='row' justify='center' spacing={2}>
               <Grid item>
-                <TextField fullWidth
-                           type='file'
-                           accept='audio/midi, audio/x-midi, audio/mid'
-                           InputLabelProps={{
-                             shrink: true,
-                           }}
-                           variant={'outlined'}
-                           onChange={e => {
-                             // Reset
-                             setFileBody(null)
-                             setTrackNo(0)
-                             setChannelNo(0)
-                             setIntroTime(0)
-                             setPitchOffset(0)
-                             setYoutubeVideoId(null)
-                             setVideo(null)
-                             errorMsg.current = null
+                <TextField
+                  fullWidth
+                  type='file'
+                  accept='audio/midi, audio/x-midi, audio/mid'
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  variant={'outlined'}
+                  onChange={e => {
+                    // Reset
+                    setFileBody(null)
+                    setTrackNo(0)
+                    setChannelNo(0)
+                    setIntroTime(0)
+                    setPitchOffset(0)
+                    setYoutubeVideoId(null)
+                    setVideo(null)
+                    errorMsg.current = null
 
-                             // Read the file
-                             const file = e.target.files[0]
-                             MIDILoader(file, setFileBody, dispatch)
-                           }}
-                           label='Select a midi file.'
+                    // Read the file
+                    const file = e.target.files[0]
+                    MIDILoader(file, setFileBody, dispatch)
+                  }}
+                  label='Select a midi file.'
                 />
               </Grid>
               <Divider orientation='vertical' flexItem />
               <Grid item>
-                  <TextField
-                    label='Track No.'
-                    type='number'
-                    onChange={e => setTrackNo(Number(e.target.value))}
-                    value={trackNo}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    variant={'outlined'}
-                  />
-          </Grid>
+                <TextField
+                  label='Track No.'
+                  type='number'
+                  onChange={e => setTrackNo(Number(e.target.value))}
+                  value={trackNo}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  variant={'outlined'}
+                />
+              </Grid>
               <Grid item>
                 <TextField
                   label='Channel No.'
@@ -275,7 +298,7 @@ function MIDIEditor({dispatch}) {
                   onChange={e => setChannelNo(Number(e.target.value))}
                   value={channelNo}
                   InputLabelProps={{
-                    shrink: true,
+                    shrink: true
                   }}
                   variant={'outlined'}
                 />
@@ -287,14 +310,19 @@ function MIDIEditor({dispatch}) {
                   onChange={e => setPitchOffset(Number(e.target.value))}
                   value={pitchOffset}
                   InputLabelProps={{
-                    shrink: true,
+                    shrink: true
                   }}
                   variant={'outlined'}
                 />
               </Grid>
             </Grid>
             <Grid item>
-              <NotesDisplay curtpos={0} gNotes={gNotes} uNotes={[]} seconds={60} />
+              <NotesDisplay
+                curtpos={0}
+                gNotes={gNotes}
+                uNotes={[]}
+                seconds={60}
+              />
             </Grid>
           </Grid>
         )
@@ -314,7 +342,7 @@ function MIDIEditor({dispatch}) {
                 }
                 readOnly
                 InputLabelProps={{
-                  shrink: true,
+                  shrink: true
                 }}
                 variant={'outlined'}
               />
@@ -334,7 +362,7 @@ function MIDIEditor({dispatch}) {
     }
   }
 
-  const isDisableNextButton = (step) => {
+  const isDisableNextButton = step => {
     switch (step) {
       case 0:
         return !youtubeVideoId
@@ -360,8 +388,12 @@ function MIDIEditor({dispatch}) {
 
   return (
     <div className={classes.root}>
-      <Stepper alternativeLabel activeStep={activeStep} connector={<ColorlibConnector />}>
-        {steps.map((label) => (
+      <Stepper
+        alternativeLabel
+        activeStep={activeStep}
+        connector={<ColorlibConnector />}
+      >
+        {steps.map(label => (
           <Step key={label}>
             <StepLabel StepIconComponent={ColoredStepIcon}>{label}</StepLabel>
           </Step>
@@ -383,21 +415,23 @@ function MIDIEditor({dispatch}) {
           </>
         ) : (
           <div>
-            <CardContent>
-              {getStepContent(activeStep)}
-            </CardContent>
+            <CardContent>{getStepContent(activeStep)}</CardContent>
             <CardActions>
               <Grid container direction='row' justify='space-around'>
                 <Grid item>
-                  <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+                  <Button
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    className={classes.button}
+                  >
                     <NavigateBefore />
                     Back
                   </Button>
                 </Grid>
                 <Grid item>
                   <Button
-                    variant="contained"
-                    color="primary"
+                    variant='contained'
+                    color='primary'
                     onClick={handleNext}
                     className={classes.button}
                     disabled={isDisableNextButton(activeStep)}
