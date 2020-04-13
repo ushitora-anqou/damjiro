@@ -148,7 +148,7 @@ function MIDIEditor ({ dispatch }) {
     setActiveStep(0)
   }
 
-  const [fileBody, setFileBody] = useState(null)
+  const [fileBody, setFileBody] = useState('')
   const [trackNo, setTrackNo] = useState(0)
   const [channelNo, setChannelNo] = useState(0)
   const [introTime, setIntroTime] = useState(0)
