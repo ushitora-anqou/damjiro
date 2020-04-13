@@ -594,6 +594,8 @@ function SingFromGakufuCard () {
             />
           </Grid>
         </Grid>
+      </CardContent>
+      <CardContent>
         <NotesScroller />
       </CardContent>
       <CardActions disableSpacing>

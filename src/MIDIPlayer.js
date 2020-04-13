@@ -152,8 +152,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
         <Button
           size='large'
           variant='outlined'
-          type='button'
-          onClick={pcmPlayer.play()}
+          onClick={() => pcmPlayer.play()}
         >
           <PlayArrow className={classes.wrapIcon} />
           Play

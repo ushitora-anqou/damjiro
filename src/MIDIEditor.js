@@ -97,8 +97,8 @@ function ColoredStepIcon (props) {
   const { active, completed } = props
 
   const icons = {
-    1: <Movie />,
-    2: <FontAwesomeIcon icon={['far', 'file-audio']} fontSize={500} />,
+    1: <FontAwesomeIcon icon={['far', 'file-audio']} fontSize={500} />,
+    2: <Movie />,
     3: <GetApp />
   }
 
@@ -134,7 +134,7 @@ const useStyles = makeStyles(theme => ({
 function MIDIEditor ({ dispatch }) {
   const classes = useStyles()
   const [activeStep, setActiveStep] = React.useState(0)
-  const steps = ['Input youtube Id', 'Select midi file', 'Check output Gakufu']
+  const steps = ['Select midi file', 'Input youtube Id', 'Check output Gakufu']
 
   const handleNext = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
@@ -176,72 +176,6 @@ function MIDIEditor ({ dispatch }) {
   const getStepContent = step => {
     switch (step) {
       case 0:
-        return (
-          <Grid
-            container
-            direction='row'
-            wrap='wrap'
-            justify='space-around'
-            spacing={2}
-          >
-            <Grid
-              item
-              style={{ maxWidth: '300px' }}
-              xl={3}
-              lg={12}
-              container
-              direction='column'
-              spacing={2}
-            >
-              <Grid item>
-                <TextField
-                  fullWidth
-                  label='YouTube video id'
-                  type='text'
-                  onChange={e => setYoutubeVideoId(e.target.value)}
-                  value={youtubeVideoId || ''}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  fullWidth
-                  label='intro time (sec)'
-                  type='number'
-                  step='any'
-                  onChange={e => setIntroTime(Number(e.target.value))}
-                  value={introTime}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                />
-              </Grid>
-            </Grid>
-            <Hidden mdDown>
-              <Divider orientation='vertical' flexItem />
-            </Hidden>
-            <Grid item style={{ maxWidth: '640px' }} xl={9} lg={12}>
-              {youtubeVideoId ? (
-                <YouTube
-                  videoId={youtubeVideoId}
-                  onReady={e => {
-                    const video = e.target
-                    setVideo(video)
-                    video.playVideo()
-                    video.pauseVideo()
-                  }}
-                />
-              ) : (
-                <div className={classes.videoFrame} />
-              )}
-            </Grid>
-          </Grid>
-        )
-      case 1:
         return (
           <Grid
             container
@@ -326,6 +260,72 @@ function MIDIEditor ({ dispatch }) {
             </Grid>
           </Grid>
         )
+      case 1:
+        return (
+          <Grid
+            container
+            direction='row'
+            wrap='wrap'
+            justify='space-around'
+            spacing={2}
+          >
+            <Grid
+              item
+              style={{ maxWidth: '300px' }}
+              xl={3}
+              lg={12}
+              container
+              direction='column'
+              spacing={2}
+            >
+              <Grid item>
+                <TextField
+                  fullWidth
+                  label='YouTube video id'
+                  type='text'
+                  onChange={e => setYoutubeVideoId(e.target.value)}
+                  value={youtubeVideoId || ''}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  variant={'outlined'}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  fullWidth
+                  label='intro time (sec)'
+                  type='number'
+                  step='any'
+                  onChange={e => setIntroTime(Number(e.target.value))}
+                  value={introTime}
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                  variant={'outlined'}
+                />
+              </Grid>
+            </Grid>
+            <Hidden mdDown>
+              <Divider orientation='vertical' flexItem />
+            </Hidden>
+            <Grid item style={{ maxWidth: '640px' }} xl={9} lg={12}>
+              {youtubeVideoId ? (
+                <YouTube
+                  videoId={youtubeVideoId}
+                  onReady={e => {
+                    const video = e.target
+                    setVideo(video)
+                    video.playVideo()
+                    video.pauseVideo()
+                  }}
+                />
+              ) : (
+                <div className={classes.videoFrame} />
+              )}
+            </Grid>
+          </Grid>
+        )
       case 2:
         return (
           <Grid item container direction='row' justify='center' spacing={3}>
@@ -365,9 +365,9 @@ function MIDIEditor ({ dispatch }) {
   const isDisableNextButton = step => {
     switch (step) {
       case 0:
-        return !youtubeVideoId
-      case 1:
         return !fileBody
+      case 1:
+        return !youtubeVideoId
       case 2:
         return false
       default:
