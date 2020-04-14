@@ -133,7 +133,7 @@ const useStyles = makeStyles(theme => ({
 
 function MIDIEditor ({ dispatch }) {
   const classes = useStyles()
-  const [activeStep, setActiveStep] = React.useState(0)
+  const [activeStep, setActiveStep] = useState(0)
   const steps = ['Select midi file', 'Input youtube Id', 'Check output Gakufu']
 
   const handleNext = () => {
@@ -153,9 +153,9 @@ function MIDIEditor ({ dispatch }) {
   const [channelNo, setChannelNo] = useState(0)
   const [introTime, setIntroTime] = useState(0)
   const [pitchOffset, setPitchOffset] = useState(0)
-  const [youtubeVideoId, setYoutubeVideoId] = useState(null)
+  const [youtubeVideoId, setYoutubeVideoId] = useState('')
   const [video, setVideo] = useState(null)
-  const errorMsg = useRef(null)
+  const errorMsg = useRef('')
 
   let gNotesOriginal = []
   let gNotes = []
@@ -196,14 +196,14 @@ function MIDIEditor ({ dispatch }) {
                   variant={'outlined'}
                   onChange={e => {
                     // Reset
-                    setFileBody(null)
+                    setFileBody('')
                     setTrackNo(0)
                     setChannelNo(0)
                     setIntroTime(0)
                     setPitchOffset(0)
-                    setYoutubeVideoId(null)
+                    setYoutubeVideoId('')
                     setVideo(null)
-                    errorMsg.current = null
+                    errorMsg.current = ''
 
                     // Read the file
                     const file = e.target.files[0]
@@ -283,8 +283,7 @@ function MIDIEditor ({ dispatch }) {
                   fullWidth
                   label='YouTube video id'
                   type='text'
-                  onChange={e => setYoutubeVideoId(e.target.value)}
-                  value={youtubeVideoId || ''}
+                  onChange={e => setYoutubeVideoId(String(e.target.value))}
                   InputLabelProps={{
                     shrink: true
                   }}
