@@ -53,7 +53,7 @@ However, the following files are not our works:
 >   -~Chris
 
 
-- `public/libtimidity.wasm` is not our work. It was built from [sezero/libtimidity](https://github.com/sezero/libtimidity) by using [feross/timidity's](https://github.com/feross/timidity) tools.
+- `public/libtimidity.wasm` is not our work. It was built from [sezero/libtimidity](https://github.com/sezero/libtimidity) by using [feross/timidity's](https://github.com/feross/timidity) tools. libtimidity is licensed as follows:
 
 >   libTiMidity is licensed under the terms of the GNU Lesser General Public
 >   License:  it is inlined below.
@@ -578,6 +578,8 @@ However, the following files are not our works:
 >     Ty Coon, President of Vice
 >
 >   That's all there is to it!
+
+timidity is licensed as follows:
 
 >   The MIT License (MIT)
 >
