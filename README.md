@@ -19,7 +19,7 @@ Yet another _karaoke_ system w/ scoring.
 
 ## License
 
-This project is licensed unser MIT License.
+This project is licensed under MIT License.
 However, the following files are not our works:
 
 - `public/GeneralUserGSv1.471.sf2` is not our work, but [S. Christian Collins's](http://www.schristiancollins.com/generaluser.php).
