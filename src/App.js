@@ -176,27 +176,34 @@ async function createPitchDetector () {
 
 const NotesSVG = styled.svg`
   width: 80vw;
-  height: 80vh;
+  height: 40vh;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
   // pitch in SMF
 
   const SIZE_PER_SEC = 100
+  const NOTE_HEIGHT = 5
+  const NOTE_NUM_MIN = 36
+  const NOTE_NUM_MAX = 88
   const cw = SIZE_PER_SEC * seconds
-  const ch = 500
+  const ch = (NOTE_NUM_MAX - NOTE_NUM_MIN + 1) * NOTE_HEIGHT
   const tpos2x = tpos => (tpos * SIZE_PER_SEC) / 1000000
   const r = {
     from: round(tpos2x(curtpos), cw),
     to: round(tpos2x(curtpos), cw) + cw
   }
   const tpos2x_view = tpos => tpos2x(tpos) - r.from
+  const pitch2y = pitch => ch - (pitch - NOTE_NUM_MIN) * NOTE_HEIGHT
 
   const notes2bars = (notes, color) =>
     notes
       .filter(
         note =>
-          r.from < tpos2x(note.tpos + note.duration) && tpos2x(note.tpos) < r.to
+          r.from < tpos2x(note.tpos + note.duration) &&
+          tpos2x(note.tpos) < r.to &&
+          NOTE_NUM_MIN <= note.pitch &&
+          note.pitch <= NOTE_NUM_MAX
       )
       .reduce((acc, note) => {
         // Concat close notes at same pitch
@@ -218,9 +225,9 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
         <React.Fragment key={note.tpos}>
           <rect
             x={tpos2x_view(note.tpos)}
-            y={500 - note.pitch * 5}
+            y={pitch2y(note.pitch)}
             width={tpos2x(note.duration)}
-            height={5}
+            height={NOTE_HEIGHT}
             rx={1}
             ry={1}
             fill={color}
