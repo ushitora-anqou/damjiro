@@ -8032,10 +8032,9 @@ midievents@^2.0.0:
   resolved "https://registry.yarnpkg.com/midievents/-/midievents-2.0.0.tgz#7c4995db7ec4a7941fa92ad8bd63be7a4864fc92"
   integrity sha512-8ABFjr+IKj1ZMAERj0jo99v/ifXU6kCbx9QKj4lM5GccaU81FPk+OVgt3FptGF9zcEsGJY74pl6juRkXDQJs+A==
 
-midifile@^2.0.0:
+"midifile@https://github.com/ushitora-anqou/midifile.git":
   version "2.0.0"
-  resolved "https://registry.yarnpkg.com/midifile/-/midifile-2.0.0.tgz#54638749023c8ca37f6330eee43ce9f720c7d1d8"
-  integrity sha512-JQw8RzJ3auOKR/fWIgt6gqKXKrPdq/AZjToQroqTjL0heBa7Ra0EvzRf/y/RDAC/UGMs6eIwB7jLS3nc9DHxZQ==
+  resolved "https://github.com/ushitora-anqou/midifile.git#cb119def4ac326ba3cece71968f5a51c3de42b10"
   dependencies:
     midievents "^2.0.0"
     utf-8 "^2.0.0"
