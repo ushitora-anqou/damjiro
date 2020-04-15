@@ -14,6 +14,7 @@ import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
 import MIDIEditor from './MIDIEditor'
+import Encoding from 'encoding-japanese'
 
 // material ui
 import Container from '@material-ui/core/Container'
@@ -134,8 +135,36 @@ export function midi2notes (buffer, targetTrack, targetChannel) {
     notes.push({
       tpos: b[0],
       duration: e[0] - b[0],
-      pitch: b[1]
+      pitch: b[1],
+      lyrics: ''
     })
+  }
+
+  if (notes.length === 0) return notes
+
+  // Extract lyrics
+  const lyrics = midi.getLyrics().map(n => ({
+    ...n,
+    text: Encoding.convert(n.text, { to: 'UNICODE' })
+  }))
+  for (let lyr of lyrics) {
+    const tpos = lyr.playTime * 1000
+
+    // Find nearest note
+    const idx = lower_bound(notes, n => n.tpos <= tpos)
+    const lhs = idx === 0 ? null : notes[idx - 1]
+    const rhs = idx === notes.length ? null : notes[idx]
+    let note = null
+    if (lhs && isClose(lhs.tpos, tpos)) {
+      note = lhs
+    } else if (rhs && isClose(tpos, rhs.tpos)) {
+      note = rhs
+    } else if (lhs && lhs.tpos < tpos && tpos < lhs.tpos + lhs.duration) {
+      note = lhs
+    }
+
+    if (!note) continue
+    note.lyrics += lyr.text
   }
 
   return notes
