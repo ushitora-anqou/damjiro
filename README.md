@@ -17,6 +17,11 @@ Yet another _karaoke_ system w/ scoring.
 - JSON text will be shown in the textarea. Copy it to another textarea above.
 - Play the video and sing it.
 
+## Development
+- install yarn@1.22.4
+- Run `yarn install`
+- Run `yarn start`
+
 ## License
 
 This project is licensed under MIT License.
