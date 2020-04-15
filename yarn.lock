@@ -8039,7 +8039,7 @@ midievents@^2.0.0:
 
 "midifile@https://github.com/ushitora-anqou/midifile.git":
   version "2.0.0"
-  resolved "https://github.com/ushitora-anqou/midifile.git#cb119def4ac326ba3cece71968f5a51c3de42b10"
+  resolved "https://github.com/ushitora-anqou/midifile.git#c7472fda2e47290d77c2f35f5d4f37c38f5cb592"
   dependencies:
     midievents "^2.0.0"
     utf-8 "^2.0.0"
