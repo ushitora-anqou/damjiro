@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react'
+import React, { useRef, useState, useCallback } from 'react'
 import { combineReducers, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
@@ -13,8 +13,34 @@ import MIDIPlayer from './MIDIPlayer'
 import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
-import MIDILoader from './util/MIDILoader'
+import MIDIEditor from './MIDIEditor'
+
+// material ui
+import Container from '@material-ui/core/Container'
+import Input from '@material-ui/core/Input'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import Card from '@material-ui/core/Card'
+import Typography from '@material-ui/core/Typography'
+import CardContent from '@material-ui/core/CardContent'
+import { TextField } from '@material-ui/core'
+import CardActions from '@material-ui/core/CardActions'
+import Collapse from '@material-ui/core/Collapse'
+import { makeStyles } from '@material-ui/core/styles'
+import IconButton from '@material-ui/core/IconButton'
+import clsx from 'clsx'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import Divider from '@material-ui/core/Divider'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import { Audiotrack, Edit, MusicVideo, Settings } from '@material-ui/icons'
+import Grid from '@material-ui/core/Grid'
+
+// font-awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faFileAudio } from '@fortawesome/free-regular-svg-icons'
+library.add(faFileAudio)
 
 // Thanks to: https://stackoverflow.com/questions/4059147/check-if-a-variable-is-a-string-in-javascript
 function isString (s) {
@@ -63,7 +89,7 @@ function lower_bound (ary, cmp) {
   return impl(0, ary.length)
 }
 
-function midi2notes (buffer, targetTrack, targetChannel) {
+export function midi2notes (buffer, targetTrack, targetChannel) {
   const midi = new MIDIFile(buffer)
   if (midi.header.getFormat() === 2)
     throw new Error('Unsupported format of MIDI')
@@ -113,30 +139,6 @@ function midi2notes (buffer, targetTrack, targetChannel) {
   return notes
 }
 
-function makeNotesSensible (notes, introTime, pitchOffset) {
-  if (notes.length === 0) return notes
-
-  const epoch = notes[0].tpos
-  return notes.map(n => ({
-    tpos: n.tpos - epoch + introTime,
-    duration: n.duration,
-    pitch: n.pitch + pitchOffset
-  }))
-}
-
-function gakufu2json (gNotes, youtubeVideoId, timeOffset) {
-  const gakufu = {
-    notes: gNotes.map(n => [
-      Math.round(n.tpos),
-      Math.round(n.duration),
-      Math.round(n.pitch)
-    ]),
-    youtubeVideoId,
-    timeOffset
-  }
-  return JSON.stringify(gakufu)
-}
-
 async function createPitchDetector () {
   const audioContext = new AudioContext()
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -176,7 +178,7 @@ const NotesSVG = styled.svg`
   width: 80vw;
   height: 80vh;
 `
-function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
+export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
   // pitch in SMF
 
@@ -279,9 +281,18 @@ function InputDamjiroGakufu ({ dispatch }) {
   const [errorMsg, setErrorMsg] = useState(null)
 
   return (
-    <div>
-      <textarea
+    <FormControl fullWidth>
+      <TextField
         value={gakufuText}
+        label='Enter Damjiro Gakuhu.'
+        helperText={errorMsg}
+        error={errorMsg}
+        multiline={true}
+        rows={3}
+        InputLabelProps={{
+          shrink: true
+        }}
+        variant={'outlined'}
         onChange={e => {
           setGakufuText(e.target.value)
           try {
@@ -316,16 +327,16 @@ function InputDamjiroGakufu ({ dispatch }) {
           dispatch({ type: 'RESET_USER_NOTES' })
         }}
       />
-      {errorMsg}
-    </div>
+    </FormControl>
   )
 }
 InputDamjiroGakufu = connect()(InputDamjiroGakufu)
 
 function TimeOffsetForm ({ timeOffset, dispatch }) {
   return (
-    <div>
-      <input
+    <FormControl fullWidth>
+      <InputLabel>Offset</InputLabel>
+      <Input
         type='number'
         value={Math.floor(timeOffset / 1000)}
         onChange={e =>
@@ -335,9 +346,9 @@ function TimeOffsetForm ({ timeOffset, dispatch }) {
           })
         }
         required
+        endAdornment={<InputAdornment position='end'>ms</InputAdornment>}
       />
-      ms
-    </div>
+    </FormControl>
   )
 }
 TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
@@ -346,8 +357,9 @@ TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
 
 function PitchOffsetForm ({ pitchOffset, dispatch }) {
   return (
-    <div>
-      <input
+    <FormControl fullWidth>
+      <InputLabel>Pitch Offset</InputLabel>
+      <Input
         type='number'
         value={Math.floor(pitchOffset)}
         onChange={e =>
@@ -357,9 +369,9 @@ function PitchOffsetForm ({ pitchOffset, dispatch }) {
           })
         }
         required
+        endAdornment={<InputAdornment position='end'>note#</InputAdornment>}
       />
-      note#
-    </div>
+    </FormControl>
   )
 }
 PitchOffsetForm = connect(({ user: { pitchOffset } }) => ({ pitchOffset }))(
@@ -371,6 +383,7 @@ function NotesScroller ({
   gakufu,
   user: { notes: uNotes, timeOffset, pitchOffset }
 }) {
+  const marginClasses = useMarginStyles()
   const playing = useRef(false)
   const curTimeOffset = useRef(timeOffset)
   const curPitchOffset = useRef(pitchOffset)
@@ -437,15 +450,6 @@ function NotesScroller ({
 
   return (
     <>
-      {gakufu.midiBuf && (
-        <MIDIPlayer
-          buffer={gakufu.midiBuf}
-          onReady={e => (video.current = e.target)}
-          onPlay={onPlay}
-          onEnd={() => (playing.current = false)}
-        />
-      )}
-
       {gakufu.videoId && (
         <YouTube
           videoId={gakufu.videoId}
@@ -457,12 +461,38 @@ function NotesScroller ({
       )}
 
       {gakufu.notes && (
-        <NotesDisplay
-          curtpos={curtpos}
-          gNotes={gakufu.notes}
-          uNotes={uNotes}
-          seconds={30}
-        />
+        <Grid container direction='row' wrap='wrap' alignItems='flex-end'>
+          <Grid item className={marginClasses.mr2}>
+            <NotesDisplay
+              curtpos={curtpos}
+              gNotes={gakufu.notes}
+              uNotes={uNotes}
+              seconds={30}
+            />
+          </Grid>
+          <Grid
+            item
+            className={[marginClasses.mr2, marginClasses.mt1]}
+            style={{ maxWidth: '140px' }}
+            container
+            direction='column'
+            spacing={2}
+          >
+            <Grid item>
+              {gakufu.midiBuf && (
+                <MIDIPlayer
+                  buffer={gakufu.midiBuf}
+                  onReady={e => (video.current = e.target)}
+                  onPlay={onPlay}
+                  onEnd={() => (playing.current = false)}
+                />
+              )}
+            </Grid>
+            <Grid item>
+              <ScoreDisplay />
+            </Grid>
+          </Grid>
+        </Grid>
       )}
     </>
   )
@@ -498,8 +528,10 @@ function ScoreDisplay ({ gNotes, uNotes }) {
 
   return (
     <div>
-      Score: {Math.round(score * 100) / 100} Accuracy:{' '}
-      {Math.round(accuracy * 100) / 100}
+      <Typography variant='h6'>
+        Score: {Math.round(score * 100) / 100} Accuracy:{' '}
+        {Math.round(accuracy * 100) / 100}
+      </Typography>
     </div>
   )
 }
@@ -510,142 +542,123 @@ ScoreDisplay = connect(
   })
 )(ScoreDisplay)
 
-function MIDIEditor ({ dispatch }) {
-  const [fileBody, setFileBody] = useState(null)
-  const [trackNo, setTrackNo] = useState(0)
-  const [channelNo, setChannelNo] = useState(0)
-  const [introTime, setIntroTime] = useState(0)
-  const [pitchOffset, setPitchOffset] = useState(0)
-  const [youtubeVideoId, setYoutubeVideoId] = useState(null)
-  const [video, setVideo] = useState(null)
-  const errorMsg = useRef(null)
+function SingFromGakufuCard () {
+  const classes = useCardStyles()
+  const marginClasses = useMarginStyles()
+  const [expanded, setExpanded] = React.useState(false)
 
-  let gNotesOriginal = []
-  let gNotes = []
-  if (fileBody) {
-    try {
-      gNotesOriginal = midi2notes(fileBody, trackNo, channelNo)
-      gNotes = makeNotesSensible(
-        gNotesOriginal,
-        introTime * 1000000,
-        pitchOffset
-      )
-      errorMsg.current = null
-    } catch (e) {
-      errorMsg.current = e.message
-    }
+  const handleExpandClick = () => {
+    setExpanded(!expanded)
   }
 
-  useEffect(() => {
-    if (gNotesOriginal.length === 0) return
-    const estimatedIntroTime = gNotesOriginal[0].tpos / 1000000
-    setIntroTime(estimatedIntroTime)
-  }, [fileBody, trackNo, channelNo])
-
-  useEffect(() => {
-    if (!video) return
-    video.seekTo(introTime, true)
-  }, [video, introTime])
-
   return (
-    <div>
-      <div>
-        <input
-          type='file'
-          accept='audio/midi, audio/x-midi, audio/mid'
-          onChange={e => {
-            // Reset
-            setFileBody(null)
-            setTrackNo(0)
-            setChannelNo(0)
-            setIntroTime(0)
-            setPitchOffset(0)
-            setYoutubeVideoId(null)
-            setVideo(null)
-            errorMsg.current = null
-
-            // Read the file
-            const file = e.target.files[0]
-            MIDILoader(file, setFileBody, dispatch)
-          }}
-        />
-      </div>
-      <div>
-        <label>
-          Track No.:
-          <input
-            type='number'
-            onChange={e => setTrackNo(Number(e.target.value))}
-            value={trackNo}
-          />
-        </label>
-        <label>
-          Channel No.:
-          <input
-            type='number'
-            onChange={e => setChannelNo(Number(e.target.value))}
-            value={channelNo}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          YouTube video id:
-          <input
-            type='text'
-            onChange={e => setYoutubeVideoId(e.target.value)}
-            value={youtubeVideoId || ''}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          intro time (sec):
-          <input
-            type='number'
-            step='any'
-            onChange={e => setIntroTime(Number(e.target.value))}
-            value={introTime}
-          />
-        </label>
-        <label>
-          pitch offset (SMF note #):
-          <input
-            type='number'
-            onChange={e => setPitchOffset(Number(e.target.value))}
-            value={pitchOffset}
-          />
-        </label>
-      </div>
-      <div>
-        <textarea
-          value={
-            fileBody && youtubeVideoId
-              ? gakufu2json(gNotes, youtubeVideoId, 300 * 1000)
-              : ''
-          }
-          readOnly
-        />
-      </div>
-      <p>{errorMsg.current}</p>
-      {fileBody && youtubeVideoId ? (
-        <YouTube
-          videoId={youtubeVideoId}
-          onReady={e => {
-            const video = e.target
-            setVideo(video)
-            video.playVideo()
-            video.pauseVideo()
-          }}
-        />
-      ) : (
-        <div />
-      )}
-      <NotesDisplay curtpos={0} gNotes={gNotes} uNotes={[]} seconds={60} />
-    </div>
+    <Card className={marginClasses.m1}>
+      <CardContent>
+        <Typography variant='h5'>
+          <Audiotrack className={classes.wrapIcon} />
+          Sing a song
+        </Typography>
+        <Grid
+          className={marginClasses.mt2}
+          container
+          direction='row'
+          justify='space-around'
+        >
+          <Grid item xs={5}>
+            <Typography
+              variant='h6'
+              className={marginClasses.mb2}
+              color='textSecondary'
+            >
+              <MusicVideo className={classes.wrapIcon} />
+              From Damjiro Gakufu file.
+            </Typography>
+            <InputDamjiroGakufu />
+          </Grid>
+          <Divider orientation='vertical' flexItem />
+          <Grid
+            item
+            xs={5}
+            container
+            direction='column'
+            justify='space-between'
+          >
+            <Typography variant='h6' color='textSecondary'>
+              <FontAwesomeIcon
+                icon={['far', 'file-audio']}
+                className={classes.wrapIcon}
+              />
+              From midi file.
+            </Typography>
+            <MIDIFilePicker
+              onLoad={buf => {
+                store.dispatch({
+                  type: 'SET_GAKUFU',
+                  gakufu: {
+                    notes: midi2notes(buf, 0, 0),
+                    midiBuf: buf,
+                    videoId: null
+                  }
+                })
+              }}
+            />
+          </Grid>
+        </Grid>
+      </CardContent>
+      <CardContent>
+        <NotesScroller />
+      </CardContent>
+      <CardActions disableSpacing>
+        <Typography color='textSecondary' className={marginClasses.ml1}>
+          <Settings className={classes.wrapIcon} />
+          Adjustment
+        </Typography>
+        <IconButton
+          className={clsx(classes.expand, {
+            [classes.expandOpen]: expanded
+          })}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label='show more'
+        >
+          <ExpandMoreIcon />
+        </IconButton>
+      </CardActions>
+      <Collapse in={expanded} timeout='auto' unmountOnExit>
+        <Grid
+          container
+          spacing={5}
+          direction='row'
+          className={marginClasses.collapse}
+        >
+          <Grid item xs={3}>
+            <TimeOffsetForm />
+          </Grid>
+          <Grid item xs={3}>
+            <PitchOffsetForm />
+          </Grid>
+        </Grid>
+      </Collapse>
+    </Card>
   )
 }
-MIDIEditor = connect()(MIDIEditor)
+
+const MakeGakufuCard = () => {
+  const classes = useCardStyles()
+  const marginClasses = useMarginStyles()
+
+  return (
+    <Card className={marginClasses.m1}>
+      <CardContent>
+        <Typography variant='h5'>
+          <Edit className={classes.wrapIcon} />
+          Make Damjiro Gakuhu.
+        </Typography>
+      </CardContent>
+      <MIDIEditor />
+    </Card>
+  )
+}
 
 function gakufuReducer (
   state = { notes: null, videoId: null, midiBuf: null },
@@ -726,30 +739,72 @@ const persistedReducer = persistReducer(
 const store = createStore(persistedReducer)
 const persistor = persistStore(store)
 
+export const useCardStyles = makeStyles(theme => ({
+  expand: {
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest
+    })
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)'
+  },
+  wrapIcon: {
+    verticalAlign: 'middle',
+    display: 'inline-flex',
+    marginRight: theme.spacing(1)
+  }
+}))
+
+export const useMarginStyles = makeStyles(theme => ({
+  mt1: {
+    marginTop: theme.spacing(1)
+  },
+  mt2: {
+    marginTop: theme.spacing(2)
+  },
+  mt3: {
+    marginTop: theme.spacing(3)
+  },
+  mb1: {
+    marginBottom: theme.spacing(1)
+  },
+  mb2: {
+    marginBottom: theme.spacing(2)
+  },
+  m1: {
+    margin: theme.spacing(1)
+  },
+  m3: {
+    margin: theme.spacing(3)
+  },
+  ml1: {
+    marginLeft: theme.spacing(1)
+  },
+  collapse: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    marginBottom: theme.spacing(3)
+  },
+  mr2: {
+    marginRight: theme.spacing(2)
+  }
+}))
+
 function App () {
+  const marginStyles = useMarginStyles()
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
-        <InputDamjiroGakufu />
-        <MIDIFilePicker
-          onLoad={buf => {
-            store.dispatch({
-              type: 'SET_GAKUFU',
-              gakufu: {
-                notes: midi2notes(buf, 0, 0),
-                midiBuf: buf,
-                videoId: null
-              }
-            })
-          }}
-        />
-        <TimeOffsetForm />
-        <PitchOffsetForm />
-        <ScoreDisplay />
-        <NotesScroller />
-        <hr />
-        <MIDIEditor />
+        <Container maxWidth={false}>
+          <Typography variant='h4' className={marginStyles.m1}>
+            Damjiro
+          </Typography>
+          <SingFromGakufuCard />
+          <MakeGakufuCard />
+        </Container>
         <MessageSnackbar />
       </PersistGate>
     </Provider>

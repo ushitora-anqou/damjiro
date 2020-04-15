@@ -17,18 +17,18 @@ Yet another _karaoke_ system w/ scoring.
 - JSON text will be shown in the textarea. Copy it to another textarea above.
 - Play the video and sing it.
 
+## Development
+- install yarn@1.22.4
+- Run `yarn install`
+- Run `yarn start`
+
 ## License
 
-- `public/models/*` are not my work, but [ML5.js's](https://ml5js.org/)
-```
-MIT License
+This project is licensed under MIT License.
+However, the following files are not our works:
 
-Copyright (c) 2018 ML5.js
+- `public/GeneralUserGSv1.471.sf2` is not our work, but [S. Christian Collins's](http://www.schristiancollins.com/generaluser.php).
+- `public/libtimidity.wasm` is not our work. It was built from [sezero/libtimidity](https://github.com/sezero/libtimidity) by using [feross/timidity's](https://github.com/feross/timidity) tools.
+- `public/models/*` are not our work, but [ML5.js's](https://ml5js.org/)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
-- Others (of course except dependencies) are mime and can be used under MIT License. See the file `LICENSE` for details.
+See the file `LICENSE` for details.
