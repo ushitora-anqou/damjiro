@@ -294,7 +294,14 @@ function InputDamjiroGakufu ({ dispatch }) {
         }}
         variant={'outlined'}
         onChange={e => {
+          dispatch({ type: 'RESET_USER_NOTES' })
           setGakufuText(e.target.value)
+
+          if (e.target.value === '') {
+            setErrorMsg(null)
+            return
+          }
+
           try {
             const json = JSON.parse(e.target.value)
             const notes = json.notes.map(n => ({
@@ -324,7 +331,6 @@ function InputDamjiroGakufu ({ dispatch }) {
               variant: 'error'
             })
           }
-          dispatch({ type: 'RESET_USER_NOTES' })
         }}
       />
     </FormControl>
