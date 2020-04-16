@@ -290,7 +290,14 @@ function InputDamjiroGakufu ({ dispatch }) {
         }}
         variant={'outlined'}
         onChange={e => {
+          dispatch({ type: 'RESET_USER_NOTES' })
           setGakufuText(e.target.value)
+
+          if (e.target.value === '') {
+            setErrorMsg(null)
+            return
+          }
+
           try {
             const json = JSON.parse(e.target.value)
             const notes = json.notes.map(n => ({
@@ -320,7 +327,6 @@ function InputDamjiroGakufu ({ dispatch }) {
               variant: 'error'
             })
           }
-          dispatch({ type: 'RESET_USER_NOTES' })
         }}
       />
     </FormControl>
@@ -414,7 +420,7 @@ function NotesScroller ({
     let prev = null
     while (playing.current) {
       let [pitch, inputBuffer, inputTime] = await getPitch()
-      if (pitch && prev != inputTime) {
+      if (pitch && prev != inputTime && pitch >= 36 && pitch <= 88) {
         const videoCurrentTime = getBiasedVideoTime()
         const micCurrentTime = sec2us(audioContext.currentTime)
         const duration = sec2us(inputBuffer.duration)
@@ -520,14 +526,24 @@ function ScoreDisplay ({ gNotes, uNotes }) {
       const secretNonLinearFunc = x => x / (1 + Math.abs(x))
       return acc + uNote.duration * (1 - secretNonLinearFunc(loss))
     }, 0) / gNotes.reduce((sum, gNote) => sum + gNote.duration, 0)
+  const percPitchAccuracy =
+    uNotes.reduce((acc, uNote) => {
+      const gNote = gNotes[lower_bound(gNotes, n => n.tpos < uNote.tpos) - 1]
+      if (!gNote || gNote.tpos + gNote.duration < uNote.tpos) return acc
+      const loss = Math.abs(uNote.pitch - gNote.pitch)
+      return uNote.pitch === gNote.pitch ? acc + uNote.duration : acc
+    }, 0) / uNotes.reduce((sum, uNote) => sum + uNote.duration, 0)
   const geta = 0
   const scale = 1.2
   const score = (percPitchCorrect * 100 + geta) * scale
 
+  const accuracy = percPitchAccuracy * 100
+
   return (
     <div>
       <Typography variant='h6'>
-        Score: {Math.round(score * 100) / 100}
+        Score: {Math.round(score * 100) / 100} Accuracy:{' '}
+        {Math.round(accuracy * 100) / 100}
       </Typography>
     </div>
   )
