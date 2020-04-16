@@ -15,7 +15,7 @@
     "js-libtimidity": "https://github.com/ushitora-anqou/js-libtimidity.git",
     "midievents": "^2.0.0",
     "midifile": "^2.0.0",
-    "ml5": "^0.5.0",
+    "ml5": "https://github.com/ushitora-anqou/ml5-library.git#damjiro",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",

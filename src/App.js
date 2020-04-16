@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { combineReducers, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
@@ -139,8 +139,7 @@ export function midi2notes (buffer, targetTrack, targetChannel) {
   return notes
 }
 
-async function createPitchDetector () {
-  const audioContext = new AudioContext()
+async function createPitchDetector (audioContext) {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
     video: false
@@ -157,15 +156,12 @@ async function createPitchDetector () {
     )
   })
 
-  const getPitch = () =>
-    new Promise((resolve, reject) =>
-      pitchHandler.getPitch((err, freq) => {
-        if (err) reject(err)
-        if (!freq) resolve(null)
-        const m = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69
-        resolve(m)
-      })
-    )
+  const getPitch = async () => {
+    const [freq, inputBuffer, currentTime] = await pitchHandler.getPitch()
+    if (!freq) return [null, inputBuffer, currentTime]
+    const m = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69
+    return [m, inputBuffer, currentTime]
+  }
   const stopAudio = () => {
     stream.getTracks().forEach(track => track.stop())
     audioContext.close()
@@ -402,14 +398,21 @@ function NotesScroller ({
   user: { notes: uNotes, timeOffset, pitchOffset }
 }) {
   const marginClasses = useMarginStyles()
+  const [audioContext, setAudioContext] = useState(null)
   const playing = useRef(false)
   const curTimeOffset = useRef(timeOffset)
   const curPitchOffset = useRef(pitchOffset)
   const [curtpos, setCurtpos] = useState(0)
   const video = useRef(null)
+  useEffect(() => {
+    setAudioContext(new AudioContext())
+  }, [])
   const onPlay = useCallback(async () => {
     if (playing.current) return
     playing.current = true
+
+    if (!audioContext) return
+    audioContext.resume()
 
     // Set timer to scroll notes
     const timerAdjust = setInterval(
@@ -418,7 +421,7 @@ function NotesScroller ({
     )
 
     // Create pitch detector
-    const [getPitch, stopAudio] = await createPitchDetector()
+    const [getPitch, stopAudio] = await createPitchDetector(audioContext)
 
     // Clear user's previous notes
     dispatch({ type: 'RESET_USER_NOTES' })
@@ -426,16 +429,19 @@ function NotesScroller ({
     // Loop to get pitches from mic
     const getBiasedVideoTime = () =>
       sec2us(video.current.getCurrentTime()) - curTimeOffset.current
-    let prev = getBiasedVideoTime()
+    let prev = null
     while (playing.current) {
-      const pitch = await getPitch()
-      const now = getBiasedVideoTime()
-      if (pitch && pitch >= 36 && pitch <= 88) {
-        const duration = now - prev
+      let [pitch, inputBuffer, inputTime] = await getPitch()
+      if (pitch && prev != inputTime && pitch >= 36 && pitch <= 88) {
+        const videoCurrentTime = getBiasedVideoTime()
+        const micCurrentTime = sec2us(audioContext.currentTime)
+        const duration = sec2us(inputBuffer.duration)
+        const tpos =
+          videoCurrentTime - (micCurrentTime - sec2us(inputTime) + duration)
         let biasedPitch = pitch
         let correct = false
 
-        const lbIdx = lower_bound(gakufu.notes, n => n.tpos < prev) - 1
+        const lbIdx = lower_bound(gakufu.notes, n => n.tpos < tpos) - 1
         const lb = lbIdx >= 0 ? gakufu.notes[lbIdx] : gakufu.notes[0]
         if (lb) {
           biasedPitch = lb.pitch + curPitchOffset.current
@@ -443,25 +449,26 @@ function NotesScroller ({
             pitch - biasedPitch - Math.floor((pitch - biasedPitch) / 12) * 12
           if (gap > 6) gap -= 12
           biasedPitch += gap
-          if (lb.tpos < prev && prev < lb.tpos + lb.duration && gap === 0)
+          if (lb.tpos < tpos && tpos < lb.tpos + lb.duration && gap === 0)
             correct = true
         }
 
         const note = {
-          tpos: prev,
+          tpos,
           duration,
           pitch: biasedPitch,
           correct
         }
         dispatch({ type: 'APPEND_USER_NOTE', note })
       }
-      prev = now
+      inputBuffer = null
+      prev = inputTime
     }
     stopAudio()
 
     // Stop timer
     clearInterval(timerAdjust)
-  }, [gakufu.notes, dispatch])
+  }, [gakufu.notes, dispatch, audioContext])
 
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
