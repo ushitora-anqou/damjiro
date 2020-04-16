@@ -164,7 +164,6 @@ async function createPitchDetector (audioContext) {
   }
   const stopAudio = () => {
     stream.getTracks().forEach(track => track.stop())
-    audioContext.close()
   }
 
   return [getPitch, stopAudio]
