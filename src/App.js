@@ -139,6 +139,25 @@ export function midi2notes (buffer, targetTrack, targetChannel) {
   return notes
 }
 
+function muteMIDIChannel (midiBuf, targetTrack, targetChannel) {
+  const midi = new MIDIFile(midiBuf)
+  if (midi.header.getTracksCount() <= targetTrack)
+    throw new Error('Invalid track number')
+  const events = midi.getTrackEvents(targetTrack)
+  for (let ev of events) {
+    if (ev.channel !== targetChannel) continue
+    switch (ev.subtype) {
+      case MIDIEvents.EVENT_MIDI_NOTE_ON:
+        ev.param2 = 0 // Mute it
+        break
+      default:
+        break
+    }
+  }
+  midi.setTrackEvents(targetTrack, events)
+  return midi.getContent()
+}
+
 async function createPitchDetector (audioContext) {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
@@ -620,7 +639,7 @@ function SingFromGakufuCard () {
                   type: 'SET_GAKUFU',
                   gakufu: {
                     notes: midi2notes(buf, 0, 0),
-                    midiBuf: buf,
+                    midiBuf: muteMIDIChannel(buf, 0, 0),
                     videoId: null
                   }
                 })
