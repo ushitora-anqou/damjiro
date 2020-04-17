@@ -35,6 +35,8 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { Audiotrack, Edit, MusicVideo, Settings } from '@material-ui/icons'
 import Grid from '@material-ui/core/Grid'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
 
 // font-awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -589,7 +591,8 @@ ScoreDisplay = connect(
 function SingFromGakufuCard () {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
-  const [expanded, setExpanded] = React.useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [checkedMute, setCheckedMute] = useState(false)
 
   const handleExpandClick = () => {
     setExpanded(!expanded)
@@ -640,11 +643,21 @@ function SingFromGakufuCard () {
                   type: 'SET_GAKUFU',
                   gakufu: {
                     notes: midi2notes(buf, 0, 0),
-                    midiBuf: muteMIDIChannel(buf, 0, 0),
+                    midiBuf: checkedMute ? muteMIDIChannel(buf, 0, 0) : buf,
                     videoId: null
                   }
                 })
               }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={checkedMute}
+                  onChange={e => setCheckedMute(e.target.checked)}
+                  name='checkedMute'
+                />
+              }
+              label='Mute melody'
             />
           </Grid>
         </Grid>
