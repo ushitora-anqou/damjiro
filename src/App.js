@@ -24,6 +24,7 @@ import { Redirect, Route, Switch } from 'react-router'
 import ErrorPage from './pages/ErrorPage'
 import SingGakufuPage from './pages/SingGakufuPage'
 import SingMIDIPage from './pages/SingMIDIPage'
+import Encoding from 'encoding-japanese'
 
 // material ui
 import {
@@ -134,8 +135,70 @@ export function midi2notes (buffer, targetTrack, targetChannel) {
     notes.push({
       tpos: b[0],
       duration: e[0] - b[0],
-      pitch: b[1]
+      pitch: b[1],
+      lyrics: ''
     })
+  }
+
+  if (notes.length === 0) return notes
+
+  // Extract lyrics
+  let lyrics = midi.getLyrics().map(n => ({
+    ...n,
+    text: Encoding.convert(n.text, { to: 'UNICODE' })
+  }))
+
+  // Format lyrics
+  const stateTbl = [
+    {
+      '\\': [1, false],
+      '^': [0, false],
+      '/': [0, false],
+      '%': [0, false],
+      '<': [0, false],
+      '>': [0, false],
+      '[': [2, false],
+      '(': [2, false]
+    },
+    {},
+    { ']': [0, false], ')': [0, false] }
+  ]
+  const stateTblDefault = [
+    [0, true],
+    [0, true],
+    [2, false]
+  ]
+  let st = 0
+  lyrics = lyrics.map(lyr => {
+    let text = ''
+    for (let ch of lyr.text) {
+      const s = stateTbl[st][ch] || stateTblDefault[st]
+      if (s[1]) text += ch
+      st = s[0]
+    }
+    return { ...lyr, text }
+  })
+
+  // Assign lyrics to note
+  for (let lyr of lyrics) {
+    const tpos = lyr.playTime * 1000
+
+    // Find nearest note
+    const idx = lower_bound(notes, n => n.tpos <= tpos)
+    const lhs = idx === 0 ? null : notes[idx - 1]
+    const rhs = idx === notes.length ? null : notes[idx]
+    let note = null
+    if (lhs && isClose(lhs.tpos, tpos)) {
+      note = lhs
+    } else if (rhs && isClose(tpos, rhs.tpos)) {
+      note = rhs
+    } else if (lhs && lhs.tpos < tpos && tpos < lhs.tpos + lhs.duration) {
+      note = lhs
+    }
+
+    if (!note) continue
+
+    note.lyrics += lyr.text
   }
 
   return notes
@@ -192,7 +255,6 @@ async function createPitchDetector (audioContext) {
 
 const NotesSVG = styled.svg`
   width: 80vw;
-  height: 40vh;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
@@ -200,6 +262,7 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
 
   const SIZE_PER_SEC = 100
   const NOTE_HEIGHT = 5
+  const FONT_SIZE = 20
   const [NOTE_NUM_MIN, NOTE_NUM_MAX] = gNotes.reduce(
     (minmax, n) => [
       Math.min(minmax[0], n.pitch - 12),
@@ -217,15 +280,17 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   const tpos2x_view = tpos => tpos2x(tpos) - r.from
   const pitch2y = pitch => ch - (pitch - NOTE_NUM_MIN) * NOTE_HEIGHT
 
+  const filterNotes = notes =>
+    notes.filter(
+      note =>
+        r.from < tpos2x(note.tpos + note.duration) &&
+        tpos2x(note.tpos) < r.to &&
+        NOTE_NUM_MIN <= note.pitch &&
+        note.pitch <= NOTE_NUM_MAX
+    )
+
   const notes2bars = (notes, color) =>
     notes
-      .filter(
-        note =>
-          r.from < tpos2x(note.tpos + note.duration) &&
-          tpos2x(note.tpos) < r.to &&
-          NOTE_NUM_MIN <= note.pitch &&
-          note.pitch <= NOTE_NUM_MAX
-      )
       .reduce((acc, note) => {
         // Concat close notes at same pitch
         if (acc.length === 0) return [note]
@@ -244,6 +309,11 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
       }, [])
       .map(note => (
         <React.Fragment key={note.tpos}>
+          {note.lyrics && (
+            <text x={tpos2x_view(note.tpos)} y={FONT_SIZE} fontSize={FONT_SIZE}>
+              {note.lyrics}
+            </text>
+          )}
           <rect
             x={tpos2x_view(note.tpos)}
             y={pitch2y(note.pitch)}
@@ -260,7 +330,7 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   return (
     <>
       <p>{curtpos}</p>
-      <NotesSVG viewBox={'0,0,' + cw + ',' + ch} preserveAspectRatio='none'>
+      <NotesSVG viewBox={'0,0,' + cw + ',' + ch}>
         {
           // horizontal lines
         }
@@ -288,17 +358,11 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
           stroke='red'
         />
         {// note bars
-        notes2bars(gNotes, 'gray')}
+        notes2bars(filterNotes(gNotes), 'gray')}
         {// user's correct note bars
-        notes2bars(
-          uNotes.filter(n => n.correct),
-          '#FFA500'
-        )}
+        notes2bars(filterNotes(uNotes.filter(n => n.correct)), '#FFA500')}
         {// user's wrong note bars
-        notes2bars(
-          uNotes.filter(n => !n.correct),
-          'red'
-        )}
+        notes2bars(filterNotes(uNotes.filter(n => !n.correct)), 'red')}
       </NotesSVG>
     </>
   )
@@ -512,7 +576,7 @@ export function NotesScroller ({
               curtpos={curtpos}
               gNotes={gakufu.notes}
               uNotes={uNotes}
-              seconds={30}
+              seconds={10}
             />
           </Grid>
           <Grid

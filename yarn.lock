@@ -4660,6 +4660,11 @@ encodeurl@~1.0.2:
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
   integrity sha1-rT/0yG7C0CkyL1oCw6mmBslbP1k=
 
+encoding-japanese@^1.0.30:
+  version "1.0.30"
+  resolved "https://registry.yarnpkg.com/encoding-japanese/-/encoding-japanese-1.0.30.tgz#537c4d62881767925d601acb4c79fb14db81703a"
+  integrity sha512-bd/DFLAoJetvv7ar/KIpE3CNO8wEuyrt9Xuw6nSMiZ+Vrz/Q21BPsMHvARL2Wz6IKHKXgb+DWZqtRg1vql9cBg==
+
 encoding@^0.1.11:
   version "0.1.12"
   resolved "https://registry.yarnpkg.com/encoding/-/encoding-0.1.12.tgz#538b66f3ee62cd1ab51ec323829d1f9480c74beb"
@@ -8072,10 +8077,9 @@ midievents@^2.0.0:
   resolved "https://registry.yarnpkg.com/midievents/-/midievents-2.0.0.tgz#7c4995db7ec4a7941fa92ad8bd63be7a4864fc92"
   integrity sha512-8ABFjr+IKj1ZMAERj0jo99v/ifXU6kCbx9QKj4lM5GccaU81FPk+OVgt3FptGF9zcEsGJY74pl6juRkXDQJs+A==
 
-midifile@^2.0.0:
+"midifile@https://github.com/ushitora-anqou/midifile.git":
   version "2.0.0"
-  resolved "https://registry.yarnpkg.com/midifile/-/midifile-2.0.0.tgz#54638749023c8ca37f6330eee43ce9f720c7d1d8"
-  integrity sha512-JQw8RzJ3auOKR/fWIgt6gqKXKrPdq/AZjToQroqTjL0heBa7Ra0EvzRf/y/RDAC/UGMs6eIwB7jLS3nc9DHxZQ==
+  resolved "https://github.com/ushitora-anqou/midifile.git#c7472fda2e47290d77c2f35f5d4f37c38f5cb592"
   dependencies:
     midievents "^2.0.0"
     utf-8 "^2.0.0"
