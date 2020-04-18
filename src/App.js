@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react'
-import {applyMiddleware, combineReducers, compose, createStore} from 'redux'
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
 import YouTube from 'react-youtube'
@@ -12,14 +12,18 @@ import MIDIEvents from 'midievents'
 import MIDIPlayer from './MIDIPlayer'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
-import { ConnectedRouter, connectRouter, routerMiddleware } from "connected-react-router";
-import {createBrowserHistory} from "history";
-import AboutPage from "./pages/AboutPage";
-import MakeGakufuPage from "./pages/MakeGakufuPage";
-import {Redirect, Route, Switch} from "react-router";
-import ErrorPage from "./pages/ErrorPage";
-import SingGakufuPage from "./pages/SingGakufuPage";
-import SingMIDIPage from "./pages/SingMIDIPage";
+import {
+  ConnectedRouter,
+  connectRouter,
+  routerMiddleware
+} from 'connected-react-router'
+import { createBrowserHistory } from 'history'
+import AboutPage from './pages/AboutPage'
+import MakeGakufuPage from './pages/MakeGakufuPage'
+import { Redirect, Route, Switch } from 'react-router'
+import ErrorPage from './pages/ErrorPage'
+import SingGakufuPage from './pages/SingGakufuPage'
+import SingMIDIPage from './pages/SingMIDIPage'
 
 // material ui
 import {
@@ -32,7 +36,7 @@ import {
   Typography,
   makeStyles,
   CssBaseline,
-  Grid,
+  Grid
 } from '@material-ui/core'
 
 // font-awesome
@@ -513,7 +517,7 @@ export function NotesScroller ({
           </Grid>
           <Grid
             item
-            className={marginClasses.mr2 + " " + marginClasses.mt1}
+            className={marginClasses.mr2 + ' ' + marginClasses.mt1}
             style={{ maxWidth: '140px' }}
             container
             direction='column'
@@ -666,9 +670,7 @@ const persistedReducer = persistReducer(
 
 const store = createStore(
   persistedReducer,
-  compose(
-    applyMiddleware(routerMiddleware(history))
-  )
+  compose(applyMiddleware(routerMiddleware(history)))
 )
 const persistor = persistStore(store)
 
@@ -740,13 +742,11 @@ function App () {
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
         <Container maxWidth={false}>
-          <Typography variant='h4'>
-            Damjiro
-          </Typography>
+          <Typography variant='h4'>Damjiro</Typography>
         </Container>
         <ConnectedRouter history={history}>
           <Switch>
-            <Route exact path='/' component={AboutPage}/>
+            <Route exact path='/' component={AboutPage} />
             <Route exact path='/gakufu/make' component={MakeGakufuPage} />
             <Route exact path='/gakufu/sing' component={SingGakufuPage} />
             <Route exact path='/midi/sing' component={SingMIDIPage} />

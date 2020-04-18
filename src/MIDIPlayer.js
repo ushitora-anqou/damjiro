@@ -159,9 +159,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
         </Button>
       ) : (
         <>
-          {!isPlaying && (
-            <Typography component={"sub"}>Loading...</Typography>
-          )}
+          {!isPlaying && <Typography component={'sub'}>Loading...</Typography>}
         </>
       )}
     </>

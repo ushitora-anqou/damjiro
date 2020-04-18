@@ -1,30 +1,32 @@
-import React, {useState} from "react";
+import React, { useState } from 'react'
 import {
   useCardStyles,
   useMarginStyles,
-  midi2notes, muteMIDIChannel,
+  midi2notes,
+  muteMIDIChannel,
   NotesScroller,
   PitchOffsetForm,
-  TimeOffsetForm,
-} from "../App";
+  TimeOffsetForm
+} from '../App'
 
 import {
   Card,
   CardActions,
   CardContent,
-  Checkbox, Collapse,
+  Checkbox,
+  Collapse,
   FormControlLabel,
   Grid,
   IconButton,
   Typography
-} from "@material-ui/core";
-import {Audiotrack, ExpandMore, Settings} from "@material-ui/icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import MIDIFilePicker from "../MIDIFilePicker";
-import clsx from "clsx";
-import {connect} from "react-redux";
+} from '@material-ui/core'
+import { Audiotrack, ExpandMore, Settings } from '@material-ui/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import MIDIFilePicker from '../MIDIFilePicker'
+import clsx from 'clsx'
+import { connect } from 'react-redux'
 
-const _singMIDIPage = ({dispatch}) => {
+const _singMIDIPage = ({ dispatch }) => {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
   const [expanded, setExpanded] = useState(false)
@@ -56,7 +58,11 @@ const _singMIDIPage = ({dispatch}) => {
             direction='column'
             justify='space-between'
           >
-            <Typography variant='h6' color='textSecondary' className={marginClasses.mb2}>
+            <Typography
+              variant='h6'
+              color='textSecondary'
+              className={marginClasses.mb2}
+            >
               <FontAwesomeIcon
                 icon={['far', 'file-audio']}
                 className={classes.wrapIcon}

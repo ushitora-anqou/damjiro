@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from 'react'
 import {
   InputDamjiroGakufu,
   NotesScroller,
@@ -6,7 +6,7 @@ import {
   TimeOffsetForm,
   useCardStyles,
   useMarginStyles
-} from "../App";
+} from '../App'
 import {
   Card,
   CardActions,
@@ -15,9 +15,14 @@ import {
   Grid,
   IconButton,
   Typography
-} from "@material-ui/core";
-import {Audiotrack, ExpandMore, MusicVideo, Settings} from "@material-ui/icons";
-import clsx from "clsx";
+} from '@material-ui/core'
+import {
+  Audiotrack,
+  ExpandMore,
+  MusicVideo,
+  Settings
+} from '@material-ui/icons'
+import clsx from 'clsx'
 
 const SingGakufuPage = () => {
   const classes = useCardStyles()

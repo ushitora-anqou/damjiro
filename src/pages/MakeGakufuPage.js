@@ -1,8 +1,8 @@
-import {useCardStyles, useMarginStyles} from "../App";
-import {Typography, Card, CardContent} from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
-import MIDIEditor from "../MIDIEditor";
-import React from "react";
+import { useCardStyles, useMarginStyles } from '../App'
+import { Typography, Card, CardContent } from '@material-ui/core'
+import { Edit } from '@material-ui/icons'
+import MIDIEditor from '../MIDIEditor'
+import React from 'react'
 
 const MakeGakufuPage = () => {
   const classes = useCardStyles()
