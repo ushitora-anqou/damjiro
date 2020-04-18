@@ -448,7 +448,7 @@ export function NotesScroller ({
     let prev = null
     while (playing.current) {
       let [pitch, inputBuffer, inputTime] = await getPitch()
-      if (pitch && prev != inputTime && pitch >= 36 && pitch <= 88) {
+      if (pitch && prev !== inputTime && pitch >= 36 && pitch <= 88) {
         const videoCurrentTime = getBiasedVideoTime()
         const micCurrentTime = sec2us(audioContext.currentTime)
         const duration = sec2us(inputBuffer.duration)
