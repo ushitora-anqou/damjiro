@@ -52,7 +52,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "http://localhost:3000",
+  "homepage": "http://localhost:3000/damjiro",
   "devDependencies": {
     "prettier-standard": "^16.2.1"
   }
