@@ -1,3 +1,4 @@
+import { useCardStyles } from './App'
 import React, { useEffect, useState, useRef } from 'react'
 import JSLibTimidity from 'js-libtimidity'
 import EventEmitter from 'events'
@@ -5,7 +6,6 @@ import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import Button from '@material-ui/core/Button'
 import { PlayArrow } from '@material-ui/icons'
-import { useCardStyles } from './App'
 import Typography from '@material-ui/core/Typography'
 
 const TIMIDITY_CFG = `
@@ -105,7 +105,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
   useEffect(() => {
     if (!audioContext || !buffer) return
     async function f () {
-      const synth = new JSLibTimidity(window.location.pathname, TIMIDITY_CFG, {
+      const synth = new JSLibTimidity(process.env.PUBLIC_URL, TIMIDITY_CFG, {
         sampleRate: audioContext.sampleRate,
         numChannels: 2
       })
@@ -160,7 +160,7 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
       ) : (
         <>
           {!isPlaying && (
-            <Typography component={'subtitle'}>Loading...</Typography>
+            <Typography component={"sub"}>Loading...</Typography>
           )}
         </>
       )}
