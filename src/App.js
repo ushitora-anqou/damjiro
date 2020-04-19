@@ -223,12 +223,7 @@ export function muteMIDIChannel (midiBuf, targetTrack, targetChannel) {
   return midi.getContent()
 }
 
-async function createPitchDetector (audioContext) {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: false
-  })
-
+async function createPitchDetector (audioContext, stream) {
   const pitchHandler = await new Promise(resolve => {
     const pitchHandler = ml5.pitchDetection(
       process.env.PUBLIC_URL + '/model',
@@ -247,7 +242,7 @@ async function createPitchDetector (audioContext) {
     return [m, inputBuffer, currentTime]
   }
   const stopAudio = () => {
-    stream.getTracks().forEach(track => track.stop())
+    // Nothing to do!
   }
 
   return [getPitch, stopAudio]
@@ -483,21 +478,24 @@ export function NotesScroller ({
   user: { notes: uNotes, timeOffset, pitchOffset }
 }) {
   const marginClasses = useMarginStyles()
-  const [audioContext, setAudioContext] = useState(null)
+  const micStream = useRef(null)
   const playing = useRef(false)
   const curTimeOffset = useRef(timeOffset)
   const curPitchOffset = useRef(pitchOffset)
   const [curtpos, setCurtpos] = useState(0)
   const video = useRef(null)
-  useEffect(() => {
-    setAudioContext(new AudioContext())
-  }, [])
   const onPlay = useCallback(async () => {
     if (playing.current) return
     playing.current = true
 
-    if (!audioContext) return
-    audioContext.resume()
+    if (!micStream.current) {
+      micStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      })
+    }
+
+    const audioContext = new AudioContext()
 
     // Set timer to scroll notes
     const timerAdjust = setInterval(
@@ -506,7 +504,10 @@ export function NotesScroller ({
     )
 
     // Create pitch detector
-    const [getPitch, stopAudio] = await createPitchDetector(audioContext)
+    const [getPitch, stopAudio] = await createPitchDetector(
+      audioContext,
+      micStream.current
+    )
 
     // Clear user's previous notes
     dispatch({ type: 'RESET_USER_NOTES' })
@@ -549,11 +550,18 @@ export function NotesScroller ({
       inputBuffer = null
       prev = inputTime
     }
+
     stopAudio()
+    audioContext.close()
 
     // Stop timer
     clearInterval(timerAdjust)
-  }, [gakufu.notes, dispatch, audioContext])
+  }, [gakufu.notes, dispatch])
+  const onEnd = useCallback(async () => {
+    playing.current = false
+    micStream.current.getTracks().forEach(track => track.stop())
+    micStream.current = null
+  })
 
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
@@ -566,7 +574,7 @@ export function NotesScroller ({
           onReady={e => (video.current = e.target)}
           onPlay={onPlay}
           onPause={() => (playing.current = false)}
-          onEnd={() => (playing.current = false)}
+          onEnd={onEnd}
         />
       )}
 
@@ -594,7 +602,7 @@ export function NotesScroller ({
                   buffer={gakufu.midiBuf}
                   onReady={e => (video.current = e.target)}
                   onPlay={onPlay}
-                  onEnd={() => (playing.current = false)}
+                  onEnd={onEnd}
                 />
               )}
             </Grid>
