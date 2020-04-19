@@ -35,13 +35,26 @@ class PCMPlayer extends EventEmitter {
   play () {
     if (this._playing) return
 
-    this._node = this._audioContext.createScriptProcessor(
-      0,
-      0,
-      this._pcm.numChannels
+    const buffer = this._audioContext.createBuffer(
+      this._pcm.numChannels,
+      this._pcm.data.length / this._pcm.numChannels,
+      this._pcm.sampleRate
     )
-    this._node.connect(this._audioContext.destination)
-    this._node.addEventListener('audioprocess', this._onAudioProcess)
+    for (let ch = 0; ch < this._pcm.numChannels; ch++) {
+      const out = buffer.getChannelData(ch)
+      for (let i = 0; i < out.length; i++) {
+        const si = (this._offset + i) * this._pcm.numChannels + ch
+        const s = si < this._pcm.data.length ? this._pcm.data[si] / 0x7fff : 0
+        out[i] = s
+      }
+    }
+
+    this._source = this._audioContext.createBufferSource()
+    this._source.buffer = buffer
+    this._source.connect(this._audioContext.destination)
+
+    this._epoch = this._audioContext.currentTime + 0.1
+    this._source.start(this._epoch)
 
     this._playing = true
     this.emit('start')
@@ -50,8 +63,7 @@ class PCMPlayer extends EventEmitter {
   stop () {
     if (!this._playing) return
 
-    this._node.disconnect()
-    this._node.removeEventListener('audioprocess', this._onAudioProcess)
+    this._souce.stop()
 
     this._playing = false
     this._pcm = null
