@@ -398,8 +398,7 @@ export function InputDamjiroGakufu ({ dispatch }) {
               pitch: n[2]
             }))
             const videoId = json.youtubeVideoId
-            const timeOffset = json.timeOffset
-            if (!isString(videoId) || !isNumber(timeOffset)) {
+            if (!isString(videoId)) {
               dispatch({
                 type: 'SNACK_LOAD',
                 message: 'invalid JSON',
@@ -407,7 +406,6 @@ export function InputDamjiroGakufu ({ dispatch }) {
               })
             } else {
               dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
-              dispatch({ type: 'SET_USER_TIME_OFFSET', value: timeOffset })
               setErrorMsg(null)
             }
           } catch (e) {
