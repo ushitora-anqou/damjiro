@@ -178,81 +178,81 @@ function MIDIEditor ({ dispatch, push }) {
     switch (step) {
       case 0:
         return (
-          <Grid container direction='column' justify='center' spacing={2}>
-            <Grid item container direction='row' justify='center' spacing={2}>
-              <Grid item>
-                <TextField
-                  type='file'
-                  accept='audio/midi, audio/x-midi, audio/mid'
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                  onChange={e => {
-                    // Reset
-                    setFileBody('')
-                    setTrackNo(0)
-                    setChannelNo(0)
-                    setIntroTime(0)
-                    setPitchOffset(0)
-                    setYoutubeVideoId('')
-                    setVideo(null)
-                    errorMsg.current = ''
+          <>
+            <Grid container direction='column' justify='center' spacing={2}>
+              <Grid item container direction='row' justify='center' spacing={2}>
+                <Grid item>
+                  <TextField
+                    type='file'
+                    accept='audio/midi, audio/x-midi, audio/mid'
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    variant={'outlined'}
+                    onChange={e => {
+                      // Reset
+                      setFileBody('')
+                      setTrackNo(0)
+                      setChannelNo(0)
+                      setIntroTime(0)
+                      setPitchOffset(0)
+                      setYoutubeVideoId('')
+                      setVideo(null)
+                      errorMsg.current = ''
 
-                    // Read the file
-                    const file = e.target.files[0]
-                    MIDILoader(file, setFileBody, dispatch)
-                  }}
-                  label='Select a midi file.'
-                />
-              </Grid>
-              <Divider orientation='vertical' flexItem />
-              <Grid item>
-                <TextField
-                  label='Track No.'
-                  type='number'
-                  onChange={e => setTrackNo(Number(e.target.value))}
-                  value={trackNo}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  label='Channel No.'
-                  type='number'
-                  onChange={e => setChannelNo(Number(e.target.value))}
-                  value={channelNo}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  label='pitch offset (SMF note #)'
-                  type='number'
-                  onChange={e => setPitchOffset(Number(e.target.value))}
-                  value={pitchOffset}
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  variant={'outlined'}
-                />
+                      // Read the file
+                      const file = e.target.files[0]
+                      MIDILoader(file, setFileBody, dispatch)
+                    }}
+                    label='Select a midi file.'
+                  />
+                </Grid>
+                <Divider orientation='vertical' flexItem />
+                <Grid item>
+                  <TextField
+                    label='Track No.'
+                    type='number'
+                    onChange={e => setTrackNo(Number(e.target.value))}
+                    value={trackNo}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    variant={'outlined'}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    label='Channel No.'
+                    type='number'
+                    onChange={e => setChannelNo(Number(e.target.value))}
+                    value={channelNo}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    variant={'outlined'}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    label='pitch offset (SMF note #)'
+                    type='number'
+                    onChange={e => setPitchOffset(Number(e.target.value))}
+                    value={pitchOffset}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    variant={'outlined'}
+                  />
+                </Grid>
               </Grid>
             </Grid>
-            <Grid item>
-              <NotesDisplay
-                curtpos={0}
-                gNotes={gNotes}
-                uNotes={[]}
-                seconds={30}
-              />
-            </Grid>
-          </Grid>
+            <NotesDisplay
+              curtpos={0}
+              gNotes={gNotes}
+              uNotes={[]}
+              seconds={30}
+            />
+          </>
         )
       case 1:
         return (

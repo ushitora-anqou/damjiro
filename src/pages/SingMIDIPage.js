@@ -18,7 +18,8 @@ import {
   Grid,
   IconButton,
   Typography,
-  Container
+  Container,
+  CardHeader
 } from '@material-ui/core'
 import { Audiotrack, ExpandMore, Settings } from '@material-ui/icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -41,11 +42,15 @@ const _singMIDIPage = ({ dispatch }) => {
   return (
     <Container>
       <Card className={marginClasses.m3}>
+        <CardHeader
+          title={
+            <Typography variant='h5'>
+              <Audiotrack className={classes.wrapIcon} />
+              Sing a song
+            </Typography>
+          }
+        />
         <CardContent>
-          <Typography variant='h5'>
-            <Audiotrack className={classes.wrapIcon} />
-            Sing a song
-          </Typography>
           <Grid
             className={marginClasses.mt2}
             container

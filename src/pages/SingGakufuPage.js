@@ -15,7 +15,8 @@ import {
   Grid,
   IconButton,
   Typography,
-  Container
+  Container,
+  CardHeader
 } from '@material-ui/core'
 import {
   Audiotrack,
@@ -37,11 +38,15 @@ const SingGakufuPage = () => {
   return (
     <Container>
       <Card className={marginClasses.m3}>
+        <CardHeader
+          title={
+            <Typography variant='h5'>
+              <Audiotrack className={classes.wrapIcon} />
+              Sing a song
+            </Typography>
+          }
+        />
         <CardContent>
-          <Typography variant='h5'>
-            <Audiotrack className={classes.wrapIcon} />
-            Sing a song
-          </Typography>
           <Grid
             className={marginClasses.mt2}
             container
