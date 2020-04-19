@@ -178,12 +178,7 @@ function MIDIEditor ({ dispatch, push }) {
     switch (step) {
       case 0:
         return (
-          <Grid
-            container
-            direction='column'
-            justify='center'
-            spacing={2}
-          >
+          <Grid container direction='column' justify='center' spacing={2}>
             <Grid item container direction='row' justify='center' spacing={2}>
               <Grid item>
                 <TextField
@@ -451,5 +446,5 @@ function MIDIEditor ({ dispatch, push }) {
     </div>
   )
 }
-MIDIEditor = connect(null, {push})(MIDIEditor)
+MIDIEditor = connect(null, { push })(MIDIEditor)
 export default MIDIEditor

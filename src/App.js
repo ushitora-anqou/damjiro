@@ -24,7 +24,7 @@ import { Redirect, Route, Switch } from 'react-router'
 import ErrorPage from './pages/ErrorPage'
 import SingGakufuPage from './pages/SingGakufuPage'
 import SingMIDIPage from './pages/SingMIDIPage'
-import Header from "./container/Header";
+import Header from './container/Header'
 import Encoding from 'encoding-japanese'
 
 // material ui
@@ -254,7 +254,7 @@ async function createPitchDetector (audioContext) {
 }
 
 const NotesSVG = styled.svg`
-  maxWidth: 80vw;
+  maxwidth: 80vw;
   width: inherit;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
