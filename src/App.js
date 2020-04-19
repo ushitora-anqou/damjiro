@@ -561,7 +561,7 @@ export function NotesScroller ({
     playing.current = false
     micStream.current.getTracks().forEach(track => track.stop())
     micStream.current = null
-  })
+  }, [playing, micStream])
 
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
