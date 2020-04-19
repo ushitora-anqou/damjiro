@@ -34,15 +34,14 @@ function makeNotesSensible (notes, introTime, pitchOffset) {
   }))
 }
 
-function gakufu2json (gNotes, youtubeVideoId, timeOffset) {
+function gakufu2json (gNotes, youtubeVideoId) {
   const gakufu = {
     notes: gNotes.map(n => [
       Math.round(n.tpos),
       Math.round(n.duration),
       Math.round(n.pitch)
     ]),
-    youtubeVideoId,
-    timeOffset
+    youtubeVideoId
   }
   return JSON.stringify(gakufu)
 }
@@ -330,7 +329,7 @@ function MIDIEditor ({ dispatch, push }) {
                 label='Output Gakufu'
                 value={
                   fileBody && youtubeVideoId
-                    ? gakufu2json(gNotes, youtubeVideoId, 300 * 1000)
+                    ? gakufu2json(gNotes, youtubeVideoId)
                     : ''
                 }
                 readOnly
