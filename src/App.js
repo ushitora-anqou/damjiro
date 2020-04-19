@@ -557,6 +557,11 @@ export function NotesScroller ({
     // Stop timer
     clearInterval(timerAdjust)
   }, [gakufu.notes, dispatch])
+  const onEnd = useCallback(async () => {
+    playing.current = false
+    micStream.current.getTracks().forEach(track => track.stop())
+    micStream.current = null
+  })
 
   curTimeOffset.current = timeOffset
   curPitchOffset.current = pitchOffset
@@ -569,7 +574,7 @@ export function NotesScroller ({
           onReady={e => (video.current = e.target)}
           onPlay={onPlay}
           onPause={() => (playing.current = false)}
-          onEnd={() => (playing.current = false)}
+          onEnd={onEnd}
         />
       )}
 
@@ -597,7 +602,7 @@ export function NotesScroller ({
                   buffer={gakufu.midiBuf}
                   onReady={e => (video.current = e.target)}
                   onPlay={onPlay}
-                  onEnd={() => (playing.current = false)}
+                  onEnd={onEnd}
                 />
               )}
             </Grid>
