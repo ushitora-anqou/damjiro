@@ -24,11 +24,11 @@ import { Redirect, Route, Switch } from 'react-router'
 import ErrorPage from './pages/ErrorPage'
 import SingGakufuPage from './pages/SingGakufuPage'
 import SingMIDIPage from './pages/SingMIDIPage'
+import Header from "./container/Header";
 import Encoding from 'encoding-japanese'
 
 // material ui
 import {
-  Container,
   Input,
   TextField,
   InputLabel,
@@ -254,7 +254,8 @@ async function createPitchDetector (audioContext) {
 }
 
 const NotesSVG = styled.svg`
-  width: 80vw;
+  maxWidth: 80vw;
+  width: inherit;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
@@ -570,7 +571,7 @@ export function NotesScroller ({
       )}
 
       {gakufu.notes && (
-        <Grid container direction='row' wrap='wrap' alignItems='flex-end'>
+        <Grid container direction='row' wrap='nowrap' alignItems='flex-end'>
           <Grid item className={marginClasses.mr2}>
             <NotesDisplay
               curtpos={curtpos}
@@ -633,15 +634,21 @@ function ScoreDisplay ({ gNotes, uNotes }) {
   const scale = 1.2
   const score = (percPitchCorrect * 100 + geta) * scale
 
-  const accuracy = percPitchAccuracy * 100
+  const accuracy = isNaN(percPitchAccuracy) ? 0 : percPitchAccuracy * 100
 
   return (
-    <div>
-      <Typography variant='h6'>
-        Score: {Math.round(score * 100) / 100} Accuracy:{' '}
-        {Math.round(accuracy * 100) / 100}
-      </Typography>
-    </div>
+    <Grid container direction='column' spacing={1}>
+      <Grid item>
+        <Typography variant='h6'>
+          Score: {Math.round(score * 100) / 100}
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant='h6'>
+          Accuracy: {Math.round(accuracy * 100) / 100}
+        </Typography>
+      </Grid>
+    </Grid>
   )
 }
 ScoreDisplay = connect(
@@ -805,9 +812,7 @@ function App () {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
-        <Container maxWidth={false}>
-          <Typography variant='h4'>Damjiro</Typography>
-        </Container>
+        <Header />
         <ConnectedRouter history={history}>
           <Switch>
             <Route exact path='/' component={AboutPage} />
