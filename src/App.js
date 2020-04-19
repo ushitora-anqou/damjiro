@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react'
+import React, { useRef, useState, useCallback } from 'react'
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
@@ -249,7 +249,7 @@ async function createPitchDetector (audioContext, stream) {
 }
 
 const NotesSVG = styled.svg`
-  maxwidth: 80vw;
+  max-width: 80vw;
   width: inherit;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
@@ -580,7 +580,7 @@ export function NotesScroller ({
 
       {gakufu.notes && (
         <Grid container direction='row' wrap='nowrap' alignItems='flex-end'>
-          <Grid item className={marginClasses.mr2}>
+          <Grid item className={marginClasses.mr2} style={{ flexGrow: 1 }}>
             <NotesDisplay
               curtpos={curtpos}
               gNotes={gakufu.notes}
