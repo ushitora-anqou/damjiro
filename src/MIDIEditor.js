@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import MIDILoader from './util/MIDILoader'
 import YouTube from 'react-youtube'
 import { connect } from 'react-redux'
+import { push } from 'connected-react-router'
 import { midi2notes, NotesDisplay } from './App'
 
 //material-ui
@@ -131,7 +132,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-function MIDIEditor ({ dispatch }) {
+function MIDIEditor ({ dispatch, push }) {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
   const steps = ['Select midi file', 'Input youtube Id', 'Check output Gakufu']
@@ -144,8 +145,8 @@ function MIDIEditor ({ dispatch }) {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
-  const handleReset = () => {
-    setActiveStep(0)
+  const handleTop = () => {
+    push('/')
   }
 
   const [fileBody, setFileBody] = useState('')
@@ -177,17 +178,10 @@ function MIDIEditor ({ dispatch }) {
     switch (step) {
       case 0:
         return (
-          <Grid
-            container
-            direction='column'
-            justify='center'
-            alignItems='center'
-            spacing={2}
-          >
+          <Grid container direction='column' justify='center' spacing={2}>
             <Grid item container direction='row' justify='center' spacing={2}>
               <Grid item>
                 <TextField
-                  fullWidth
                   type='file'
                   accept='audio/midi, audio/x-midi, audio/mid'
                   InputLabelProps={{
@@ -255,7 +249,7 @@ function MIDIEditor ({ dispatch }) {
                 curtpos={0}
                 gNotes={gNotes}
                 uNotes={[]}
-                seconds={60}
+                seconds={30}
               />
             </Grid>
           </Grid>
@@ -407,9 +401,14 @@ function MIDIEditor ({ dispatch }) {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button onClick={handleReset} className={classes.button}>
-                Reset
-              </Button>
+              <Grid container direction='row' justify='space-around'>
+                <Grid item>
+                  <Button onClick={handleTop} className={classes.button}>
+                    <NavigateBefore />
+                    Back to Top
+                  </Button>
+                </Grid>
+              </Grid>
             </CardActions>
           </>
         ) : (
@@ -447,5 +446,5 @@ function MIDIEditor ({ dispatch }) {
     </div>
   )
 }
-MIDIEditor = connect()(MIDIEditor)
+MIDIEditor = connect(null, { push })(MIDIEditor)
 export default MIDIEditor

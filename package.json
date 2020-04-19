@@ -9,10 +9,13 @@
     "@fortawesome/react-fontawesome": "^0.1.9",
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.49",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "encoding-japanese": "^1.0.30",
+    "connected-react-router": "^6.8.0",
+    "history": "^4.10.1",
     "js-libtimidity": "https://github.com/ushitora-anqou/js-libtimidity.git",
     "midievents": "^2.0.0",
     "ml5": "https://github.com/ushitora-anqou/ml5-library.git#damjiro",
@@ -20,6 +23,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
+    "react-router": "^5.1.2",
     "react-scripts": "3.4.1",
     "react-youtube": "^7.11.0",
     "redux": "^4.0.5",
@@ -50,7 +54,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "http://localhost:3000",
+  "homepage": "http://localhost:3000/damjiro",
   "devDependencies": {
     "prettier-standard": "^16.2.1"
   }

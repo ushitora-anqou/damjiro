@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react'
-import { combineReducers, createStore } from 'redux'
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import { Provider, connect } from 'react-redux'
 import styled from 'styled-components'
 import YouTube from 'react-youtube'
@@ -10,37 +10,37 @@ import ml5 from 'ml5'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import MIDIPlayer from './MIDIPlayer'
-import MIDIFilePicker from './MIDIFilePicker'
 import snackbarReducer from './reducers/SnackbarReducer'
 import MessageSnackbar from './shared/MessageSnackbar'
-import MIDIEditor from './MIDIEditor'
+import {
+  ConnectedRouter,
+  connectRouter,
+  routerMiddleware
+} from 'connected-react-router'
+import { createBrowserHistory } from 'history'
+import AboutPage from './pages/AboutPage'
+import MakeGakufuPage from './pages/MakeGakufuPage'
+import { Redirect, Route, Switch } from 'react-router'
+import ErrorPage from './pages/ErrorPage'
+import SingGakufuPage from './pages/SingGakufuPage'
+import SingMIDIPage from './pages/SingMIDIPage'
+import Header from './container/Header'
 import Encoding from 'encoding-japanese'
 
 // material ui
-import Container from '@material-ui/core/Container'
-import Input from '@material-ui/core/Input'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
-import CardContent from '@material-ui/core/CardContent'
-import { TextField } from '@material-ui/core'
-import CardActions from '@material-ui/core/CardActions'
-import Collapse from '@material-ui/core/Collapse'
-import { makeStyles } from '@material-ui/core/styles'
-import IconButton from '@material-ui/core/IconButton'
-import clsx from 'clsx'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Divider from '@material-ui/core/Divider'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { Audiotrack, Edit, MusicVideo, Settings } from '@material-ui/icons'
-import Grid from '@material-ui/core/Grid'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
+import {
+  Input,
+  TextField,
+  InputLabel,
+  InputAdornment,
+  FormControl,
+  Typography,
+  makeStyles,
+  CssBaseline,
+  Grid
+} from '@material-ui/core'
 
 // font-awesome
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faFileAudio } from '@fortawesome/free-regular-svg-icons'
 library.add(faFileAudio)
@@ -204,7 +204,7 @@ export function midi2notes (buffer, targetTrack, targetChannel) {
   return notes
 }
 
-function muteMIDIChannel (midiBuf, targetTrack, targetChannel) {
+export function muteMIDIChannel (midiBuf, targetTrack, targetChannel) {
   const midi = new MIDIFile(midiBuf)
   if (midi.header.getTracksCount() <= targetTrack)
     throw new Error('Invalid track number')
@@ -231,7 +231,7 @@ async function createPitchDetector (audioContext) {
 
   const pitchHandler = await new Promise(resolve => {
     const pitchHandler = ml5.pitchDetection(
-      './model',
+      process.env.PUBLIC_URL + '/model',
       audioContext,
       stream,
       () => {
@@ -254,7 +254,8 @@ async function createPitchDetector (audioContext) {
 }
 
 const NotesSVG = styled.svg`
-  width: 80vw;
+  maxwidth: 80vw;
+  width: inherit;
 `
 export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   // curtpos, tpos, duration in us
@@ -368,7 +369,7 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
   )
 }
 
-function InputDamjiroGakufu ({ dispatch }) {
+export function InputDamjiroGakufu ({ dispatch }) {
   const [gakufuText, setGakufuText] = useState('')
   const [errorMsg, setErrorMsg] = useState(null)
 
@@ -430,7 +431,7 @@ function InputDamjiroGakufu ({ dispatch }) {
 }
 InputDamjiroGakufu = connect()(InputDamjiroGakufu)
 
-function TimeOffsetForm ({ timeOffset, dispatch }) {
+export function TimeOffsetForm ({ timeOffset, dispatch }) {
   return (
     <FormControl fullWidth>
       <InputLabel>Offset</InputLabel>
@@ -453,7 +454,7 @@ TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
   TimeOffsetForm
 )
 
-function PitchOffsetForm ({ pitchOffset, dispatch }) {
+export function PitchOffsetForm ({ pitchOffset, dispatch }) {
   return (
     <FormControl fullWidth>
       <InputLabel>Pitch Offset</InputLabel>
@@ -476,7 +477,7 @@ PitchOffsetForm = connect(({ user: { pitchOffset } }) => ({ pitchOffset }))(
   PitchOffsetForm
 )
 
-function NotesScroller ({
+export function NotesScroller ({
   dispatch,
   gakufu,
   user: { notes: uNotes, timeOffset, pitchOffset }
@@ -516,7 +517,7 @@ function NotesScroller ({
     let prev = null
     while (playing.current) {
       let [pitch, inputBuffer, inputTime] = await getPitch()
-      if (pitch && prev != inputTime && pitch >= 36 && pitch <= 88) {
+      if (pitch && prev !== inputTime && pitch >= 36 && pitch <= 88) {
         const videoCurrentTime = getBiasedVideoTime()
         const micCurrentTime = sec2us(audioContext.currentTime)
         const duration = sec2us(inputBuffer.duration)
@@ -570,7 +571,7 @@ function NotesScroller ({
       )}
 
       {gakufu.notes && (
-        <Grid container direction='row' wrap='wrap' alignItems='flex-end'>
+        <Grid container direction='row' wrap='nowrap' alignItems='flex-end'>
           <Grid item className={marginClasses.mr2}>
             <NotesDisplay
               curtpos={curtpos}
@@ -581,7 +582,7 @@ function NotesScroller ({
           </Grid>
           <Grid
             item
-            className={[marginClasses.mr2, marginClasses.mt1]}
+            className={marginClasses.mr2 + ' ' + marginClasses.mt1}
             style={{ maxWidth: '140px' }}
             container
             direction='column'
@@ -633,15 +634,21 @@ function ScoreDisplay ({ gNotes, uNotes }) {
   const scale = 1.2
   const score = (percPitchCorrect * 100 + geta) * scale
 
-  const accuracy = percPitchAccuracy * 100
+  const accuracy = isNaN(percPitchAccuracy) ? 0 : percPitchAccuracy * 100
 
   return (
-    <div>
-      <Typography variant='h6'>
-        Score: {Math.round(score * 100) / 100} Accuracy:{' '}
-        {Math.round(accuracy * 100) / 100}
-      </Typography>
-    </div>
+    <Grid container direction='column' spacing={1}>
+      <Grid item>
+        <Typography variant='h6'>
+          Score: {Math.round(score * 100) / 100}
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant='h6'>
+          Accuracy: {Math.round(accuracy * 100) / 100}
+        </Typography>
+      </Grid>
+    </Grid>
   )
 }
 ScoreDisplay = connect(
@@ -650,135 +657,6 @@ ScoreDisplay = connect(
     uNotes
   })
 )(ScoreDisplay)
-
-function SingFromGakufuCard () {
-  const classes = useCardStyles()
-  const marginClasses = useMarginStyles()
-  const [expanded, setExpanded] = useState(false)
-  const [checkedMute, setCheckedMute] = useState(false)
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded)
-  }
-
-  return (
-    <Card className={marginClasses.m1}>
-      <CardContent>
-        <Typography variant='h5'>
-          <Audiotrack className={classes.wrapIcon} />
-          Sing a song
-        </Typography>
-        <Grid
-          className={marginClasses.mt2}
-          container
-          direction='row'
-          justify='space-around'
-        >
-          <Grid item xs={5}>
-            <Typography
-              variant='h6'
-              className={marginClasses.mb2}
-              color='textSecondary'
-            >
-              <MusicVideo className={classes.wrapIcon} />
-              From Damjiro Gakufu file.
-            </Typography>
-            <InputDamjiroGakufu />
-          </Grid>
-          <Divider orientation='vertical' flexItem />
-          <Grid
-            item
-            xs={5}
-            container
-            direction='column'
-            justify='space-between'
-          >
-            <Typography variant='h6' color='textSecondary'>
-              <FontAwesomeIcon
-                icon={['far', 'file-audio']}
-                className={classes.wrapIcon}
-              />
-              From midi file.
-            </Typography>
-            <MIDIFilePicker
-              onLoad={buf => {
-                store.dispatch({
-                  type: 'SET_GAKUFU',
-                  gakufu: {
-                    notes: midi2notes(buf, 0, 0),
-                    midiBuf: checkedMute ? muteMIDIChannel(buf, 0, 0) : buf,
-                    videoId: null
-                  }
-                })
-              }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checkedMute}
-                  onChange={e => setCheckedMute(e.target.checked)}
-                  name='checkedMute'
-                />
-              }
-              label='Mute melody'
-            />
-          </Grid>
-        </Grid>
-      </CardContent>
-      <CardContent>
-        <NotesScroller />
-      </CardContent>
-      <CardActions disableSpacing>
-        <Typography color='textSecondary' className={marginClasses.ml1}>
-          <Settings className={classes.wrapIcon} />
-          Adjustment
-        </Typography>
-        <IconButton
-          className={clsx(classes.expand, {
-            [classes.expandOpen]: expanded
-          })}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label='show more'
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-      </CardActions>
-      <Collapse in={expanded} timeout='auto' unmountOnExit>
-        <Grid
-          container
-          spacing={5}
-          direction='row'
-          className={marginClasses.collapse}
-        >
-          <Grid item xs={3}>
-            <TimeOffsetForm />
-          </Grid>
-          <Grid item xs={3}>
-            <PitchOffsetForm />
-          </Grid>
-        </Grid>
-      </Collapse>
-    </Card>
-  )
-}
-
-const MakeGakufuCard = () => {
-  const classes = useCardStyles()
-  const marginClasses = useMarginStyles()
-
-  return (
-    <Card className={marginClasses.m1}>
-      <CardContent>
-        <Typography variant='h5'>
-          <Edit className={classes.wrapIcon} />
-          Make Damjiro Gakuhu.
-        </Typography>
-      </CardContent>
-      <MIDIEditor />
-    </Card>
-  )
-}
 
 function gakufuReducer (
   state = { notes: null, videoId: null, midiBuf: null },
@@ -834,6 +712,10 @@ function userReducer (
   }
 }
 
+const history = createBrowserHistory({
+  basename: '/damjiro/'
+})
+
 const rootReducer = combineReducers({
   gakufu: gakufuReducer,
   user: persistReducer(
@@ -844,7 +726,8 @@ const rootReducer = combineReducers({
     },
     userReducer
   ),
-  snack: snackbarReducer
+  snack: snackbarReducer,
+  router: connectRouter(history)
 })
 
 const persistedReducer = persistReducer(
@@ -856,7 +739,10 @@ const persistedReducer = persistReducer(
   rootReducer
 )
 
-const store = createStore(persistedReducer)
+const store = createStore(
+  persistedReducer,
+  compose(applyMiddleware(routerMiddleware(history)))
+)
 const persistor = persistStore(store)
 
 export const useCardStyles = makeStyles(theme => ({
@@ -874,6 +760,12 @@ export const useCardStyles = makeStyles(theme => ({
     verticalAlign: 'middle',
     display: 'inline-flex',
     marginRight: theme.spacing(1)
+  },
+  wrapAwesomeIcon: {
+    verticalAlign: 'middle',
+    display: 'inline-flex',
+    marginRight: theme.spacing(1),
+    fontSize: '24px'
   }
 }))
 
@@ -909,22 +801,28 @@ export const useMarginStyles = makeStyles(theme => ({
   },
   mr2: {
     marginRight: theme.spacing(2)
+  },
+  mauto: {
+    margin: 'auto'
   }
 }))
 
 function App () {
-  const marginStyles = useMarginStyles()
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
-        <Container maxWidth={false}>
-          <Typography variant='h4' className={marginStyles.m1}>
-            Damjiro
-          </Typography>
-          <SingFromGakufuCard />
-          <MakeGakufuCard />
-        </Container>
+        <Header />
+        <ConnectedRouter history={history}>
+          <Switch>
+            <Route exact path='/' component={AboutPage} />
+            <Route exact path='/gakufu/make' component={MakeGakufuPage} />
+            <Route exact path='/gakufu/sing' component={SingGakufuPage} />
+            <Route exact path='/midi/sing' component={SingMIDIPage} />
+            <Route exact path='/error' component={ErrorPage} />
+            <Route render={() => <Redirect to='/error?status=404' />} />
+          </Switch>
+        </ConnectedRouter>
         <MessageSnackbar />
       </PersistGate>
     </Provider>
