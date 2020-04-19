@@ -52,6 +52,7 @@ class PCMPlayer extends EventEmitter {
     this._source = this._audioContext.createBufferSource()
     this._source.buffer = buffer
     this._source.connect(this._audioContext.destination)
+    this._source.onended = this.stop
 
     this._epoch = this._audioContext.currentTime + 0.1
     this._source.start(this._epoch)
@@ -60,10 +61,10 @@ class PCMPlayer extends EventEmitter {
     this.emit('start')
   }
 
-  stop () {
+  stop = () => {
     if (!this._playing) return
 
-    this._souce.stop()
+    this._source.stop()
 
     this._playing = false
     this._pcm = null
