@@ -29,7 +29,6 @@ class PCMPlayer extends EventEmitter {
     this._currentTime = 0
     this._offset = 0
     this._epoch = null
-    this._onAudioProcess = this._onAudioProcess.bind(this)
   }
 
   play () {
@@ -69,28 +68,6 @@ class PCMPlayer extends EventEmitter {
     this._playing = false
     this._pcm = null
     this.emit('end')
-  }
-
-  _onAudioProcess (e) {
-    let bufsize = 0
-    for (let ch = 0; ch < this._pcm.numChannels; ch++) {
-      const out = e.outputBuffer.getChannelData(ch)
-      bufsize = out.length
-      for (let i = 0; i < bufsize; i++) {
-        const si = (this._offset + i) * this._pcm.numChannels + ch
-        const s = si < this._pcm.data.length ? this._pcm.data[si] / 0x7fff : 0
-        out[i] = s
-      }
-    }
-    this._offset += bufsize
-
-    if (!this._epoch) this._epoch = this._audioContext.currentTime
-
-    if (
-      this._playing &&
-      this._offset * this._pcm.numChannels > this._pcm.data.length
-    )
-      this.stop()
   }
 
   getCurrentTime () {
