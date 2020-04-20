@@ -514,13 +514,14 @@ export function NotesScroller ({
     const getBiasedVideoTime = () =>
       sec2us(video.current.getCurrentTime()) - curTimeOffset.current
     let prev = null
+    let minTpos = 0
     while (playing.current) {
       let [pitch, inputBuffer, inputTime] = await getPitch()
       if (pitch && prev !== inputTime && pitch >= 36 && pitch <= 88) {
         const videoCurrentTime = getBiasedVideoTime()
         const micCurrentTime = sec2us(audioContext.currentTime)
         const duration = sec2us(inputBuffer.duration)
-        const tpos =
+        let tpos =
           videoCurrentTime - (micCurrentTime - sec2us(inputTime) + duration)
         let biasedPitch = pitch
         let correct = false
@@ -528,12 +529,14 @@ export function NotesScroller ({
         const lbIdx = lower_bound(gakufu.notes, n => n.tpos < tpos) - 1
         const lb = lbIdx >= 0 ? gakufu.notes[lbIdx] : gakufu.notes[0]
         if (lb) {
+          tpos = Math.max(minTpos, tpos - sec2us(0.2), lb.tpos)
+
           biasedPitch = lb.pitch + curPitchOffset.current
           let gap =
             pitch - biasedPitch - Math.floor((pitch - biasedPitch) / 12) * 12
           if (gap > 6) gap -= 12
           biasedPitch += gap
-          if (lb.tpos < tpos && tpos < lb.tpos + lb.duration && gap === 0)
+          if (lb.tpos <= tpos && tpos < lb.tpos + lb.duration && gap === 0)
             correct = true
         }
 
@@ -544,6 +547,7 @@ export function NotesScroller ({
           correct
         }
         dispatch({ type: 'APPEND_USER_NOTE', note })
+        minTpos = note.tpos + note.duration
       }
       inputBuffer = null
       prev = inputTime
