@@ -304,7 +304,9 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
         }
         return acc
       }, [])
-      .map(note => (
+      .map((note) => {
+        const width = shouldConcat ? tpos2x(note.duration) : tpos2x(note.duration) - 1
+        return (
         <React.Fragment key={note.tpos}>
           {note.lyrics && (
             <text x={tpos2x_view(note.tpos)} y={FONT_SIZE} fontSize={FONT_SIZE}>
@@ -314,7 +316,7 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
           <rect
             x={tpos2x_view(note.tpos)}
             y={pitch2y(note.pitch)}
-            width={tpos2x(note.duration)}
+            width = {width}
             height={NOTE_HEIGHT}
             rx={1}
             ry={1}
@@ -322,7 +324,7 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
             fillOpacity={0.7}
           />
         </React.Fragment>
-      ))
+      )})
 
   return (
     <>
