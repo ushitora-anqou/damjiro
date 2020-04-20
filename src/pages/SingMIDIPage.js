@@ -77,6 +77,7 @@ const _singMIDIPage = ({ dispatch }) => {
               </Typography>
               <MIDIFilePicker
                 onLoad={buf => {
+                  dispatch({ type: 'RESET_USER_NOTES' })
                   dispatch({
                     type: 'SET_GAKUFU',
                     gakufu: {

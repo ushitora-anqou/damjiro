@@ -517,9 +517,6 @@ export function NotesScroller ({
       micStream.current
     )
 
-    // Clear user's previous notes
-    dispatch({ type: 'RESET_USER_NOTES' })
-
     // Loop to get pitches from mic
     const getBiasedVideoTime = () =>
       sec2us(video.current.getCurrentTime()) - curTimeOffset.current
