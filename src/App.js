@@ -285,13 +285,14 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
         note.pitch <= NOTE_NUM_MAX
     )
 
-  const notes2bars = (notes, color) =>
+  const notes2bars = (notes, color, shouldConcat) =>
     notes
       .reduce((acc, note) => {
         // Concat close notes at same pitch
         if (acc.length === 0) return [note]
         const last = acc[acc.length - 1]
         if (
+          !shouldConcat ||
           last.pitch !== note.pitch ||
           !isClose(last.tpos + last.duration, note.tpos)
         )
@@ -354,11 +355,11 @@ export function NotesDisplay ({ curtpos, gNotes, uNotes, seconds }) {
           stroke='red'
         />
         {// note bars
-        notes2bars(filterNotes(gNotes), 'gray')}
+        notes2bars(filterNotes(gNotes), 'gray', false)}
         {// user's correct note bars
-        notes2bars(filterNotes(uNotes.filter(n => n.correct)), '#FFA500')}
+        notes2bars(filterNotes(uNotes.filter(n => n.correct)), '#FFA500', true)}
         {// user's wrong note bars
-        notes2bars(filterNotes(uNotes.filter(n => !n.correct)), 'red')}
+        notes2bars(filterNotes(uNotes.filter(n => !n.correct)), 'red', true)}
       </NotesSVG>
     </>
   )
