@@ -496,14 +496,8 @@ export function NotesScroller ({
     if (playing.current) return
     playing.current = true
 
-    if (!micStream.current) {
-      micStream.current = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false
-      })
-    }
-
-    const audioContext = new AudioContext()
+    // Clear user's previous notes
+    dispatch({ type: 'RESET_USER_NOTES' })
 
     // Set timer to scroll notes
     const timerAdjust = setInterval(
@@ -512,6 +506,13 @@ export function NotesScroller ({
     )
 
     // Create pitch detector
+    if (!micStream.current) {
+      micStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      })
+    }
+    const audioContext = new AudioContext()
     const [getPitch, stopAudio] = await createPitchDetector(
       audioContext,
       micStream.current
@@ -605,7 +606,11 @@ export function NotesScroller ({
               {gakufu.midiBuf && (
                 <MIDIPlayer
                   buffer={gakufu.midiBuf}
-                  onReady={e => (video.current = e.target)}
+                  onReady={e => {
+                    dispatch({ type: 'RESET_USER_NOTES' })
+                    video.current = e.target
+                    setCurtpos(0)
+                  }}
                   onPlay={onPlay}
                   onEnd={onEnd}
                 />
