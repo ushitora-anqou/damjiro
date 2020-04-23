@@ -81,10 +81,11 @@ class LatencyEstimator {
           const lat = val - index
           lats.push(lat)
           const mean = lats.reduce((a, b) => a + b) / lats.length
-          const dev =
+          const std = Math.sqrt(
             lats.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
-            lats.length
-          console.log(`Lat #${index}: ${lat} (mean: ${mean}, dev: ${dev})`)
+              lats.length
+          )
+          console.log(`Lat #${index}: ${lat} (mean: ${mean}, std: ${std})`)
         }
         prevIndex = index
       }
