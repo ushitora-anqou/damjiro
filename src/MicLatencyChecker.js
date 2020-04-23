@@ -71,12 +71,21 @@ class LatencyEstimator {
 
     let prevInputTime = null
     let prevIndex = -1
+    let lats = []
     while (this.context) {
       const [pitch, inputBuffer, inputTime] = await getPitch()
-      if (prevInputTime && prevInputTime !== inputTime && pitch) {
+      if (prevInputTime && prevInputTime !== inputTime && pitch === 69) {
         const val = inputTime - inputBuffer.duration - this.baseTime
         const index = Math.floor(val)
-        if (prevIndex !== index) console.log(`Lat #${index}: ${val - index}`)
+        if (prevIndex !== index) {
+          const lat = val - index
+          lats.push(lat)
+          const mean = lats.reduce((a, b) => a + b) / lats.length
+          const dev =
+            lats.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
+            lats.length
+          console.log(`Lat #${index}: ${lat} (mean: ${mean}, dev: ${dev})`)
+        }
         prevIndex = index
       }
       prevInputTime = inputTime
