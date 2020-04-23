@@ -33,7 +33,7 @@ async function estimateLatency () {
     osc.stop(baseTime + 1 * i + 0.1)
   }
 
-  // Estimate latency
+  // Take samples
   let prevInputTime = null
   let prevIndex = -1
   let lats = []
@@ -52,6 +52,11 @@ async function estimateLatency () {
     }
   }
 
+  // Clean up
+  stream.getTracks().forEach(track => track.stop())
+  context.close()
+
+  // Estimate latency
   if (lats.length === 0) throw new Error('No audio detected')
 
   const mean = lats.reduce((a, b) => a + b) / lats.length
@@ -71,13 +76,13 @@ function MicLatencyEstimationDialog ({ dispatch, open, onDone, onCancel }) {
       const [mean, std] = await estimateLatency()
       if (std < 1) {
         onDone(mean)
-        return
+      } else {
+        dispatch({
+          type: 'SNACK_LOAD',
+          message: "Couldn't estimate",
+          variant: 'error'
+        })
       }
-      dispatch({
-        type: 'SNACK_LOAD',
-        message: "Couldn't estimate",
-        variant: 'error'
-      })
     } catch (e) {
       dispatch({
         type: 'SNACK_LOAD',
