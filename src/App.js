@@ -26,6 +26,7 @@ import SingGakufuPage from './pages/SingGakufuPage'
 import SingMIDIPage from './pages/SingMIDIPage'
 import Header from './container/Header'
 import Encoding from 'encoding-japanese'
+import MicLatencyChecker from './MicLatencyChecker'
 
 // material ui
 import {
@@ -831,6 +832,7 @@ function App () {
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
         <Header />
+        <MicLatencyChecker />
         <ConnectedRouter history={history}>
           <Switch>
             <Route exact path='/' component={AboutPage} />
