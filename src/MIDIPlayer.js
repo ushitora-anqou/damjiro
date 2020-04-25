@@ -29,55 +29,45 @@ class PCMPlayer extends EventEmitter {
     this._currentTime = 0
     this._offset = 0
     this._epoch = null
-    this._onAudioProcess = this._onAudioProcess.bind(this)
   }
 
   play () {
     if (this._playing) return
 
-    this._node = this._audioContext.createScriptProcessor(
-      0,
-      0,
-      this._pcm.numChannels
+    const buffer = this._audioContext.createBuffer(
+      this._pcm.numChannels,
+      this._pcm.data.length / this._pcm.numChannels,
+      this._pcm.sampleRate
     )
-    this._node.connect(this._audioContext.destination)
-    this._node.addEventListener('audioprocess', this._onAudioProcess)
-
-    this._playing = true
-    this.emit('start')
-  }
-
-  stop () {
-    if (!this._playing) return
-
-    this._node.disconnect()
-    this._node.removeEventListener('audioprocess', this._onAudioProcess)
-
-    this._playing = false
-    this._pcm = null
-    this.emit('end')
-  }
-
-  _onAudioProcess (e) {
-    let bufsize = 0
     for (let ch = 0; ch < this._pcm.numChannels; ch++) {
-      const out = e.outputBuffer.getChannelData(ch)
-      bufsize = out.length
-      for (let i = 0; i < bufsize; i++) {
+      const out = buffer.getChannelData(ch)
+      for (let i = 0; i < out.length; i++) {
         const si = (this._offset + i) * this._pcm.numChannels + ch
         const s = si < this._pcm.data.length ? this._pcm.data[si] / 0x7fff : 0
         out[i] = s
       }
     }
-    this._offset += bufsize
 
-    if (!this._epoch) this._epoch = this._audioContext.currentTime
+    this._source = this._audioContext.createBufferSource()
+    this._source.buffer = buffer
+    this._source.connect(this._audioContext.destination)
+    this._source.onended = this.stop
 
-    if (
-      this._playing &&
-      this._offset * this._pcm.numChannels > this._pcm.data.length
-    )
-      this.stop()
+    this._epoch = this._audioContext.currentTime + 0.1
+    this._source.start(this._epoch)
+
+    this._playing = true
+    this.emit('start')
+  }
+
+  stop = () => {
+    if (!this._playing) return
+
+    this._source.stop()
+
+    this._playing = false
+    this._pcm = null
+    this.emit('end')
   }
 
   getCurrentTime () {
