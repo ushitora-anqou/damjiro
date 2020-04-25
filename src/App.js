@@ -27,6 +27,7 @@ import SingMIDIPage from './pages/SingMIDIPage'
 import Header from './container/Header'
 import Footer from './container/Footer'
 import Encoding from 'encoding-japanese'
+import WebGLSupportAlert from './WebGLSupportAlert'
 
 // material ui
 import {
@@ -832,6 +833,7 @@ function App () {
       <PersistGate loading={null} persistor={persistor}>
         <CssBaseline />
         <Header />
+        <WebGLSupportAlert />
         <ConnectedRouter history={history}>
           <Switch>
             <Route exact path='/' component={AboutPage} />
