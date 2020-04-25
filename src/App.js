@@ -6,7 +6,6 @@ import YouTube from 'react-youtube'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { PersistGate } from 'redux-persist/integration/react'
-import ml5 from 'ml5'
 import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import MIDIPlayer from './MIDIPlayer'
@@ -28,9 +27,12 @@ import Header from './container/Header'
 import Footer from './container/Footer'
 import Encoding from 'encoding-japanese'
 import WebGLSupportAlert from './WebGLSupportAlert'
+import MicLatencyEstimationDialog from './MicLatencyEstimationDialog'
+import { createPitchDetector } from './util/PitchDetector'
 
 // material ui
 import {
+  Button,
   Input,
   TextField,
   InputLabel,
@@ -225,31 +227,6 @@ export function muteMIDIChannel (midiBuf, targetTrack, targetChannel) {
   return midi.getContent()
 }
 
-async function createPitchDetector (audioContext, stream) {
-  const pitchHandler = await new Promise(resolve => {
-    const pitchHandler = ml5.pitchDetection(
-      process.env.PUBLIC_URL + '/model',
-      audioContext,
-      stream,
-      () => {
-        resolve(pitchHandler)
-      }
-    )
-  })
-
-  const getPitch = async () => {
-    const [freq, inputBuffer, currentTime] = await pitchHandler.getPitch()
-    if (!freq) return [null, inputBuffer, currentTime]
-    const m = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69
-    return [m, inputBuffer, currentTime]
-  }
-  const stopAudio = () => {
-    // Nothing to do!
-  }
-
-  return [getPitch, stopAudio]
-}
-
 const NotesSVG = styled.svg`
   max-width: 80vw;
   width: inherit;
@@ -437,22 +414,40 @@ export function InputDamjiroGakufu ({ dispatch }) {
 InputDamjiroGakufu = connect()(InputDamjiroGakufu)
 
 export function TimeOffsetForm ({ timeOffset, dispatch }) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   return (
-    <FormControl fullWidth>
-      <InputLabel>Offset</InputLabel>
-      <Input
-        type='number'
-        value={Math.floor(timeOffset / 1000)}
-        onChange={e =>
+    <>
+      <FormControl fullWidth>
+        <InputLabel>Offset</InputLabel>
+        <Input
+          type='number'
+          value={Math.floor(timeOffset / 1000)}
+          onChange={e =>
+            dispatch({
+              type: 'SET_USER_TIME_OFFSET',
+              value: Number(e.target.value) * 1000
+            })
+          }
+          required
+          endAdornment={<InputAdornment position='end'>ms</InputAdornment>}
+        />
+        <Button variant='contained' onClick={() => setDialogOpen(true)}>
+          Estimate offset
+        </Button>
+      </FormControl>
+      <MicLatencyEstimationDialog
+        open={dialogOpen}
+        onDone={offset => {
           dispatch({
             type: 'SET_USER_TIME_OFFSET',
-            value: Number(e.target.value) * 1000
+            value: sec2us(offset)
           })
-        }
-        required
-        endAdornment={<InputAdornment position='end'>ms</InputAdornment>}
+          setDialogOpen(false)
+        }}
+        onCancel={() => setDialogOpen(false)}
       />
-    </FormControl>
+    </>
   )
 }
 TimeOffsetForm = connect(({ user: { timeOffset } }) => ({ timeOffset }))(
