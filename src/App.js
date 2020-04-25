@@ -25,6 +25,7 @@ import ErrorPage from './pages/ErrorPage'
 import SingGakufuPage from './pages/SingGakufuPage'
 import SingMIDIPage from './pages/SingMIDIPage'
 import Header from './container/Header'
+import Footer from './container/Footer'
 import Encoding from 'encoding-japanese'
 
 // material ui
@@ -841,6 +842,7 @@ function App () {
             <Route render={() => <Redirect to='/error?status=404' />} />
           </Switch>
         </ConnectedRouter>
+        <Footer />
         <MessageSnackbar />
       </PersistGate>
     </Provider>
