@@ -25,8 +25,11 @@ import {
   Settings
 } from '@material-ui/icons'
 import clsx from 'clsx'
+import HistorySelector from '../HistorySelector'
+import HistoryIcon from '@material-ui/icons/History'
+import { connect } from 'react-redux'
 
-const SingGakufuPage = () => {
+const SingGakufuPage = ({ dispatch, history }) => {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
   const [expanded, setExpanded] = useState(false)
@@ -63,6 +66,25 @@ const SingGakufuPage = () => {
                 From Damjiro Gakufu file.
               </Typography>
               <InputDamjiroGakufu />
+            </Grid>
+            <Grid item xs={5}>
+              <Typography
+                variant='h6'
+                color='textSecondary'
+                className={marginClasses.mb2}
+              >
+                <HistoryIcon className={classes.wrapIcon} />
+                From history.
+              </Typography>
+              <HistorySelector
+                width={300}
+                height={150}
+                itemSize={50}
+                history={history}
+                onSelect={(index, entry) => {
+                  dispatch({ type: 'SET_GAKUFU', gakufu: entry.data })
+                }}
+              />
             </Grid>
           </Grid>
         </CardContent>
@@ -104,4 +126,7 @@ const SingGakufuPage = () => {
     </Container>
   )
 }
-export default SingGakufuPage
+
+export default connect(({ history: { gakufu } }) => ({ history: gakufu }))(
+  SingGakufuPage
+)

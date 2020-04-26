@@ -26,8 +26,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import MIDIFilePicker from '../MIDIFilePicker'
 import clsx from 'clsx'
 import { connect } from 'react-redux'
+import HistorySelector from '../HistorySelector'
+import HistoryIcon from '@material-ui/icons/History'
 
-const _singMIDIPage = ({ dispatch }) => {
+const _singMIDIPage = ({ dispatch, history }) => {
   const classes = useCardStyles()
   const marginClasses = useMarginStyles()
   const [expanded, setExpanded] = useState(false)
@@ -76,7 +78,7 @@ const _singMIDIPage = ({ dispatch }) => {
                 From midi file.
               </Typography>
               <MIDIFilePicker
-                onLoad={buf => {
+                onLoad={(buf, file) => {
                   dispatch({
                     type: 'SET_GAKUFU',
                     gakufu: {
@@ -84,6 +86,11 @@ const _singMIDIPage = ({ dispatch }) => {
                       midiBuf: checkedMute ? muteMIDIChannel(buf, 0, 0) : buf,
                       videoId: null
                     }
+                  })
+                  dispatch({
+                    type: 'REMEMBER_MIDI',
+                    name: file.name,
+                    midi: buf
                   })
                 }}
               />
@@ -96,6 +103,33 @@ const _singMIDIPage = ({ dispatch }) => {
                   />
                 }
                 label='Mute melody'
+              />
+            </Grid>
+            <Grid item xs={5}>
+              <Typography
+                variant='h6'
+                color='textSecondary'
+                className={marginClasses.mb2}
+              >
+                <HistoryIcon className={classes.wrapIcon} />
+                From history.
+              </Typography>
+              <HistorySelector
+                width={300}
+                height={150}
+                itemSize={50}
+                history={history}
+                onSelect={(index, entry) => {
+                  const buf = entry.data
+                  dispatch({
+                    type: 'SET_GAKUFU',
+                    gakufu: {
+                      notes: midi2notes(buf, 0, 0),
+                      midiBuf: checkedMute ? muteMIDIChannel(buf, 0, 0) : buf,
+                      videoId: null
+                    }
+                  })
+                }}
               />
             </Grid>
           </Grid>
@@ -138,5 +172,7 @@ const _singMIDIPage = ({ dispatch }) => {
     </Container>
   )
 }
-const SingMIDIPage = connect()(_singMIDIPage)
+const SingMIDIPage = connect(({ history: { midi } }) => ({ history: midi }))(
+  _singMIDIPage
+)
 export default SingMIDIPage
