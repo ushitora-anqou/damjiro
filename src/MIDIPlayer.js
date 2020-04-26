@@ -6,6 +6,7 @@ import MIDIFile from 'midifile'
 import MIDIEvents from 'midievents'
 import Button from '@material-ui/core/Button'
 import { PlayArrow } from '@material-ui/icons'
+import StopIcon from '@material-ui/icons/Stop'
 import Typography from '@material-ui/core/Typography'
 
 const TIMIDITY_CFG = `
@@ -66,7 +67,6 @@ class PCMPlayer extends EventEmitter {
     this._source.stop()
 
     this._playing = false
-    this._pcm = null
     this.emit('end')
   }
 
@@ -136,24 +136,25 @@ function MIDIPlayer ({ buffer, onReady, onPlay, onEnd }) {
   refOnPlay.current = onPlay
   refOnEnd.current = onEnd
 
-  return (
-    <>
-      {pcmPlayer && !isPlaying ? (
-        <Button
-          size='large'
-          variant='outlined'
-          onClick={() => pcmPlayer.play()}
-        >
-          <PlayArrow className={classes.wrapIcon} />
-          Play
-        </Button>
-      ) : (
-        <>
-          {!isPlaying && <Typography component={'sub'}>Loading...</Typography>}
-        </>
-      )}
-    </>
-  )
+  if (isPlaying) {
+    return (
+      <Button size='large' variant='outlined' onClick={() => pcmPlayer.stop()}>
+        <StopIcon className={classes.wrapIcon} />
+        Stop
+      </Button>
+    )
+  }
+
+  if (pcmPlayer) {
+    return (
+      <Button size='large' variant='outlined' onClick={() => pcmPlayer.play()}>
+        <PlayArrow className={classes.wrapIcon} />
+        Play
+      </Button>
+    )
+  }
+
+  return <Typography component={'sub'}>Loading...</Typography>
 }
 
 export default MIDIPlayer
