@@ -29,6 +29,7 @@ import Encoding from 'encoding-japanese'
 import WebGLSupportAlert from './WebGLSupportAlert'
 import MicLatencyEstimationDialog from './MicLatencyEstimationDialog'
 import { createPitchDetector } from './util/PitchDetector'
+import historyReducer from './reducers/HistoryReducer'
 
 // material ui
 import {
@@ -394,7 +395,13 @@ export function InputDamjiroGakufu ({ dispatch }) {
                 variant: 'error'
               })
             } else {
-              dispatch({ type: 'SET_GAKUFU', gakufu: { notes, videoId } })
+              const gakufu = { notes, videoId }
+              dispatch({ type: 'SET_GAKUFU', gakufu })
+              dispatch({
+                type: 'REMEMBER_GAKUFU',
+                name: videoId,
+                gakufu
+              })
               setErrorMsg(null)
             }
           } catch (e) {
@@ -742,6 +749,7 @@ const rootReducer = combineReducers({
     userReducer
   ),
   snack: snackbarReducer,
+  history: persistReducer({ key: 'history', storage }, historyReducer),
   router: connectRouter(history)
 })
 

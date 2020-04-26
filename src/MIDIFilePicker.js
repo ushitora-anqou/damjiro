@@ -12,7 +12,7 @@ function MIDIFilePicker ({ onLoad, dispatch }) {
       onChange={e => {
         // Read the file
         const file = e.target.files[0]
-        MIDILoader(file, onLoad, dispatch)
+        MIDILoader(file, buf => onLoad(buf, file), dispatch)
       }}
       InputLabelProps={{
         shrink: true
