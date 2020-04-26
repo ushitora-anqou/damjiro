@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "48d68da3871812fa49c83ec8f1f0c95e",
+    "revision": "e7c425091ea81a34de4128b482d9344c",
     "url": "https://ushitora-anqou.github.io/damjiro/index.html"
   },
   {
